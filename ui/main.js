@@ -93,39 +93,39 @@ function renderRows() {
   });
 }
 
-async function commit() {
-  try {
-    rows = await invoke("set_rows", { rows });
-  } catch (error) {
-    flash(String(error));
+// Every mutation goes through one chain so two quick edits cannot race and
+// overwrite each other, and the DOM is always rendered from the backend's answer
+// rather than from a local array that may have drifted.
+let chain = Promise.resolve();
+
+function queue(work) {
+  chain = chain.then(work).catch((error) => flash(String(error)));
+  return chain;
+}
+
+function adopt(result) {
+  if (Array.isArray(result)) {
+    rows = result;
+    renderRows();
   }
 }
 
-async function toggleRow(index) {
-  try {
-    rows = await invoke("set_row_enabled", { index, enabled: !rows[index].enabled });
-    renderRows();
-  } catch (error) {
-    flash(String(error));
-  }
+function commit() {
+  const payload = rows.map((row) => ({ ...row }));
+  queue(async () => adopt(await invoke("set_rows", { rows: payload })));
 }
 
-async function removeRow(index) {
-  try {
-    rows = await invoke("remove_row", { index });
-    renderRows();
-  } catch (error) {
-    flash(String(error));
-  }
+function toggleRow(index) {
+  const enabled = !rows[index].enabled;
+  queue(async () => adopt(await invoke("set_row_enabled", { index, enabled })));
 }
 
-async function addRow() {
-  try {
-    rows = await invoke("add_row");
-    renderRows();
-  } catch (error) {
-    flash(String(error));
-  }
+function removeRow(index) {
+  queue(async () => adopt(await invoke("remove_row", { index })));
+}
+
+function addRow() {
+  queue(async () => adopt(await invoke("add_row")));
 }
 
 async function fireOnce() {
@@ -207,25 +207,19 @@ async function boot() {
     }
   });
 
-  $("load").addEventListener("click", async () => {
-    try {
-      rows = await invoke("load_profile");
-      renderRows();
+  $("load").addEventListener("click", () =>
+    queue(async () => {
+      adopt(await invoke("load_profile"));
       flash(S.load);
-    } catch (error) {
-      flash(String(error));
-    }
-  });
+    })
+  );
 
-  $("reset").addEventListener("click", async () => {
-    try {
-      rows = await invoke("reset_profile");
-      renderRows();
+  $("reset").addEventListener("click", () =>
+    queue(async () => {
+      adopt(await invoke("reset_profile"));
       flash(S.reset);
-    } catch (error) {
-      flash(String(error));
-    }
-  });
+    })
+  );
 
   try {
     if (tauriEvent && typeof tauriEvent.listen === "function") {

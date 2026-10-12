@@ -13,8 +13,19 @@ use crate::win::probe::foreground_process_name;
 /// so the UI can point at it.
 pub fn validate_rows(rows: &[Row]) -> Result<(), String> {
     for (index, row) in rows.iter().enumerate() {
-        if Key::parse(&row.key).is_err() {
-            return Err(format!("row {index}: unsupported key \"{}\"", row.key));
+        let key = Key::parse(&row.key)
+            .map_err(|_| format!("row {index}: unsupported key \"{}\"", row.key))?;
+        // A row bound to a global hotkey would fire that hotkey every time it
+        // pressed — F9 would quit the app, F3 would disarm it, F2 would re-arm it.
+        if let Key::Vk(vk) = key {
+            if let Some((_, name, _)) = crate::win::hotkeys::HOTKEYS
+                .iter()
+                .find(|(_, _, hotkey_vk)| *hotkey_vk == vk)
+            {
+                return Err(format!(
+                    "row {index}: \"{name}\" is a global hotkey and cannot be a row"
+                ));
+            }
         }
     }
     Ok(())
@@ -152,9 +163,11 @@ pub fn disarm(state: State<'_, AppState>) {
 #[tauri::command]
 pub fn test_fire(state: State<'_, AppState>, key: String) -> Result<(), String> {
     let parsed = Key::parse(&key).map_err(|e| format!("unsupported key \"{key}\": {e:?}"))?;
-    lock_engine(&state)
-        .fire_once(parsed)
-        .map_err(|e| format!("input rejected: {e:?}"))
+    let probe = state.probe.clone();
+    let mut engine = lock_engine(&state);
+    engine
+        .fire_once(probe.as_ref(), parsed)
+        .map_err(|e| format!("input not sent — is the game focused? ({e:?})"))
 }
 
 #[tauri::command]
@@ -226,5 +239,16 @@ mod tests {
         let err = validate_rows(&[row("1"), row("Banana")]).unwrap_err();
         assert!(err.contains("row 1"), "message was: {err}");
         assert!(err.contains("Banana"), "message was: {err}");
+    }
+
+    #[test]
+    fn validate_rows_rejects_a_key_bound_to_a_hotkey() {
+        for hotkey in ["F2", "F3", "F9"] {
+            let err = validate_rows(&[row(hotkey)]).unwrap_err();
+            assert!(
+                err.contains(hotkey),
+                "a row on {hotkey} must be refused, it would fire the global hotkey: {err}"
+            );
+        }
     }
 }

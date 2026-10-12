@@ -1,4 +1,5 @@
-use crate::input::{InputSink};
+use crate::input::InputError;
+use crate::input::InputSink;
 use crate::keys::Key;
 use crate::profile::{Row, RowAction};
 use crate::safety::{focus_matches, point_in_rect};
@@ -76,7 +77,27 @@ impl<S: InputSink> Engine<S> {
     }
 
     /// Fire one press outside the schedule, for the UI's "Fire once" button.
-    pub fn fire_once(&mut self, key: Key) -> Result<(), crate::input::InputError> {
+    ///
+    /// Still honours the focus gate and cursor containment: a manual test button
+    /// that types into whatever window happens to be focused is the same foot-gun
+    /// the gate exists to prevent.
+    pub fn fire_once<P: GameProbe>(&mut self, probe: &P, key: Key) -> Result<(), InputError> {
+        let focused = focus_matches(
+            &self.expected_process,
+            &probe.foreground_process().unwrap_or_default(),
+        );
+        if !focused && self.gate {
+            return Err(InputError::Rejected);
+        }
+        if key.is_mouse() {
+            let inside = match probe.game_window_rect() {
+                Some(rect) => point_in_rect(probe.cursor_pos().0, probe.cursor_pos().1, rect),
+                None => false,
+            };
+            if !inside {
+                return Err(InputError::Rejected);
+            }
+        }
         self.sink.press(key)
     }
 
@@ -107,7 +128,20 @@ impl<S: InputSink> Engine<S> {
         // game loses the foreground *even when the gate is off*.
         let may_inject = focused || !self.gate;
 
-        if self.hold_armed && !focused {
+        let rect = probe.game_window_rect();
+        let cursor = probe.cursor_pos();
+        let cursor_on_game = match rect {
+            Some(r) => point_in_rect(cursor.0, cursor.1, r),
+            None => false,
+        };
+
+        // A held input has no window of its own — it acts on whatever is under
+        // the pointer next. So a mouse hold lives only while the game is focused
+        // *and* the cursor is still inside the game window; a keyboard hold needs
+        // only the focus.
+        let hold_needs_cursor = self.sink.held().iter().any(|key| key.is_mouse());
+        let hold_is_safe = focused && (!hold_needs_cursor || cursor_on_game);
+        if self.hold_armed && !hold_is_safe {
             let _ = self.sink.release_all();
             self.hold_armed = false;
         }
@@ -116,10 +150,6 @@ impl<S: InputSink> Engine<S> {
             return;
         }
 
-        // Holding an input is only ever safe while the game holds the
-        // foreground: unlike a press, a held button has no window of its own and
-        // will drag/select whatever it lands on next. So holds require focus
-        // even when the gate is off; only press rows follow the gate.
         if !self.hold_armed && focused {
             for row in self.rows.iter() {
                 if row.action != RowAction::Hold || !row.enabled {
@@ -127,6 +157,10 @@ impl<S: InputSink> Engine<S> {
                 }
                 match Key::parse(&row.key) {
                     Ok(key) => {
+                        if key.is_mouse() && !cursor_on_game {
+                            self.skipped += 1;
+                            continue;
+                        }
                         if self.sink.hold(key).is_err() {
                             self.skipped += 1;
                         }
@@ -136,9 +170,6 @@ impl<S: InputSink> Engine<S> {
             }
             self.hold_armed = true;
         }
-
-        let rect = probe.game_window_rect();
-        let cursor = probe.cursor_pos();
 
         for i in due_rows(&self.rows, &self.clocks, now_ms) {
             let key = match Key::parse(&self.rows[i].key) {
@@ -151,15 +182,9 @@ impl<S: InputSink> Engine<S> {
 
             // Mouse events go to whatever window is under the cursor, not the
             // focused one, so a mouse row only fires with the cursor on the game.
-            if key.is_mouse() {
-                let inside = match rect {
-                    Some(r) => point_in_rect(cursor.0, cursor.1, r),
-                    None => false,
-                };
-                if !inside {
-                    self.skipped += 1;
-                    continue;
-                }
+            if key.is_mouse() && !cursor_on_game {
+                self.skipped += 1;
+                continue;
             }
 
             if self.sink.press(key).is_ok() {
@@ -169,6 +194,25 @@ impl<S: InputSink> Engine<S> {
                 self.skipped += 1;
             }
         }
+    }
+}
+
+/// Run one tick so that a panicking probe cannot leave an input held. Returns
+/// false when the tick unwound, in which case the engine has already released
+/// everything it was holding.
+pub fn tick_guarded<S: InputSink, P: GameProbe>(
+    engine: &mut Engine<S>,
+    probe: &P,
+    now_ms: u64,
+) -> bool {
+    let outcome = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        engine.tick(probe, now_ms);
+    }));
+    if outcome.is_err() {
+        engine.disarm();
+        false
+    } else {
+        true
     }
 }
 
@@ -496,5 +540,112 @@ mod tests {
         );
         e.tick(&game(), 10);
         assert_eq!(e.sink().held().len(), 1, "the new hold takes effect");
+    }
+
+    // --- review fixes: cursor containment for holds, panic release, gated fire ---
+
+    struct PanicProbe;
+
+    impl GameProbe for PanicProbe {
+        fn foreground_process(&self) -> Option<String> {
+            panic!("probe blew up")
+        }
+        fn cursor_pos(&self) -> (i32, i32) {
+            (0, 0)
+        }
+        fn game_window_rect(&self) -> Option<(i32, i32, i32, i32)> {
+            None
+        }
+    }
+
+    fn off_game() -> FakeProbe {
+        FakeProbe {
+            fg: Some("Last Epoch.exe".into()),
+            cursor: (-1900, 20),
+            rect: Some((0, 0, 1920, 1080)),
+        }
+    }
+
+    #[test]
+    fn a_hold_row_releases_when_the_cursor_leaves_the_game() {
+        let mut e = Engine::new(
+            FakeSink::default(),
+            "Last Epoch.exe".into(),
+            vec![hold_row("Mouse Left")],
+        );
+        e.arm();
+        e.tick(&game(), 0);
+        assert_eq!(e.sink().held().len(), 1);
+        e.tick(&off_game(), 100);
+        assert!(
+            e.sink().held().is_empty(),
+            "a held button must be released as soon as the cursor leaves the game, \
+             because it would otherwise drag whatever is under the pointer"
+        );
+    }
+
+    #[test]
+    fn a_mouse_hold_row_does_not_start_with_the_cursor_off_the_game() {
+        let mut e = Engine::new(
+            FakeSink::default(),
+            "Last Epoch.exe".into(),
+            vec![hold_row("Mouse Left")],
+        );
+        e.arm();
+        e.tick(&off_game(), 0);
+        assert!(e.sink().held().is_empty(), "never hold a button off the game");
+    }
+
+    #[test]
+    fn a_keyboard_hold_row_is_unaffected_by_the_cursor() {
+        let mut e = Engine::new(
+            FakeSink::default(),
+            "Last Epoch.exe".into(),
+            vec![hold_row("1")],
+        );
+        e.arm();
+        e.tick(&off_game(), 0);
+        assert_eq!(e.sink().held().len(), 1, "only mouse holds need containment");
+    }
+
+    #[test]
+    fn a_panicking_tick_releases_held_input() {
+        let mut e = Engine::new(
+            FakeSink::default(),
+            "Last Epoch.exe".into(),
+            vec![hold_row("Mouse Left")],
+        );
+        e.arm();
+        assert!(tick_guarded(&mut e, &game(), 0));
+        assert_eq!(e.sink().held().len(), 1);
+        assert!(
+            !tick_guarded(&mut e, &PanicProbe, 100),
+            "a panicking probe must be reported as a failed tick"
+        );
+        assert!(
+            e.sink().held().is_empty(),
+            "unwinding must not leave a button down"
+        );
+    }
+
+    #[test]
+    fn fire_once_respects_the_focus_gate() {
+        let mut e = Engine::new(FakeSink::default(), "Last Epoch.exe".into(), vec![]);
+        assert!(e.fire_once(&game(), Key::Vk(0x31)).is_ok());
+        assert!(
+            e.fire_once(&other(), Key::Vk(0x31)).is_err(),
+            "the manual test button must not type into a window that is not the game"
+        );
+    }
+
+    #[test]
+    fn fire_once_skips_a_mouse_key_with_the_cursor_off_the_game() {
+        let mut e = Engine::new(FakeSink::default(), "Last Epoch.exe".into(), vec![]);
+        let left = Key::parse("Mouse Left").unwrap();
+        assert!(e.fire_once(&game(), left).is_ok());
+        assert!(
+            e.fire_once(&off_game(), left).is_err(),
+            "the manual test button must not click outside the game"
+        );
     }
 }

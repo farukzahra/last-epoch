@@ -104,6 +104,7 @@ pub fn run() {
                         .lock()
                         .unwrap_or_else(|e| e.into_inner())
                         .disarm();
+                    state.stop.store(true, std::sync::atomic::Ordering::Relaxed);
                 }
             }
         })

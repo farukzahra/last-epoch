@@ -13,13 +13,17 @@ use windows::Win32::UI::WindowsAndMessaging::{
     IsWindowVisible,
 };
 
-use crate::engine::{Engine, GameProbe};
+use crate::engine::{tick_guarded, Engine, GameProbe};
 use crate::win::sender::WinRawSender;
 
 /// The production input sink: `SendInput` plus held-key tracking.
 pub type AppSink = crate::input::SendInputSink<WinRawSender>;
 
-const FOREGROUND_TTL: Duration = Duration::from_millis(50);
+/// Short enough that a focus change is seen within about one tick. Caching this
+/// is what keeps the 5 ms loop from calling `OpenProcess` 200 times a second, but
+/// a long window would let the gate act on a stale focus and inject into the
+/// window the user just alt-tabbed to.
+const FOREGROUND_TTL: Duration = Duration::from_millis(10);
 const WINDOW_TTL: Duration = Duration::from_secs(1);
 const TICK: Duration = Duration::from_millis(5);
 
@@ -204,6 +208,7 @@ pub fn spawn_send_loop(
 ) -> std::thread::JoinHandle<()> {
     std::thread::spawn(move || {
         let start = Instant::now();
+        let mut consecutive_panics = 0u32;
         while !stop.load(Ordering::Relaxed) {
             let now_ms = start.elapsed().as_millis() as u64;
             {
@@ -211,10 +216,20 @@ pub fn spawn_send_loop(
                     Ok(g) => g,
                     Err(p) => p.into_inner(),
                 };
-                guard.tick(probe.as_ref(), now_ms);
+                if tick_guarded(&mut guard, probe.as_ref(), now_ms) {
+                    consecutive_panics = 0;
+                } else {
+                    // tick_guarded already released everything; stop hammering a
+                    // probe that keeps unwinding.
+                    consecutive_panics += 1;
+                    if consecutive_panics >= 3 {
+                        break;
+                    }
+                }
             }
             std::thread::sleep(TICK);
         }
+        // Whatever way the loop ended, nothing stays held.
         let mut guard = match engine.lock() {
             Ok(g) => g,
             Err(p) => p.into_inner(),

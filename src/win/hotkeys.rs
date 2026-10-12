@@ -87,7 +87,8 @@ pub fn spawn_hotkey_loop(app: AppHandle, stop: Arc<AtomicBool>) -> std::thread::
                             .disarm();
                     }
                     Hotkey::Quit => {
-                        // Release first, so quitting can never leave a button down.
+                        // Release first, then let the send loop wind down, so
+                        // quitting can never leave a button down.
                         {
                             let state = app.state::<AppState>();
                             state
@@ -95,6 +96,7 @@ pub fn spawn_hotkey_loop(app: AppHandle, stop: Arc<AtomicBool>) -> std::thread::
                                 .lock()
                                 .unwrap_or_else(|e| e.into_inner())
                                 .disarm();
+                            state.stop.store(true, Ordering::Relaxed);
                         }
                         app.exit(0);
                     }
