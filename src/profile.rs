@@ -41,6 +41,18 @@ pub struct Profile {
     pub rows: Vec<Row>,
 }
 
+/// A shipped default row: 1000 ms, disabled.
+fn default_row(id: u32, key: &str, action: RowAction) -> Row {
+    Row {
+        id,
+        key: key.into(),
+        action,
+        ms: 1000,
+        enabled: false,
+        condition: None,
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Hotkeys {
     pub arm: String,
@@ -95,33 +107,18 @@ impl From<serde_json::Error> for ProfileError {
 }
 
 impl Profile {
-    /// The user's in-game remap: skills on 1-4 plus the right mouse button, and
-    /// a held left button for movement. Every row ships disabled.
+    /// The user's in-game remap: skills on `1`-`4`, then the **left** button as a
+    /// `Hold` row for movement, then the **right** button as the fifth skill bind.
+    /// Every row ships disabled.
     pub fn default_profile() -> Profile {
-        let presses = ["1", "2", "3", "4", "Mouse Right"];
-        let mut rows: Vec<Row> = presses
-            .iter()
-            .enumerate()
-            .map(|(i, key)| Row {
-                id: i as u32,
-                key: (*key).into(),
-                action: RowAction::Press,
-                ms: 1000,
-                enabled: false,
-                condition: None,
-            })
-            .collect();
-        // Movement: holding the left button makes the character run toward the
-        // cursor, which is exactly what a Hold row is for.
-        let next_id = rows.len() as u32;
-        rows.push(Row {
-            id: next_id,
-            key: "Mouse Left".into(),
-            action: RowAction::Hold,
-            ms: 1000,
-            enabled: false,
-            condition: None,
-        });
+        let rows = vec![
+            default_row(0, "1", RowAction::Press),
+            default_row(1, "2", RowAction::Press),
+            default_row(2, "3", RowAction::Press),
+            default_row(3, "4", RowAction::Press),
+            default_row(4, "Mouse Left", RowAction::Hold),
+            default_row(5, "Mouse Right", RowAction::Press),
+        ];
         Profile {
             version: PROFILE_VERSION,
             rows,
@@ -187,15 +184,20 @@ mod tests {
         let keys: Vec<&str> = p.rows.iter().map(|r| r.key.as_str()).collect();
         assert_eq!(
             keys,
-            vec!["1", "2", "3", "4", "Mouse Right", "Mouse Left"],
-            "skills on 1-4 and right mouse, plus a held left button for movement"
+            vec!["1", "2", "3", "4", "Mouse Left", "Mouse Right"],
+            "skills on 1-4, then the left button for movement, then the right button"
         );
         assert!(p.rows.iter().all(|r| !r.enabled), "rows must ship disabled");
-        assert!(p.rows[..5].iter().all(|r| r.action == RowAction::Press));
+        assert!(p.rows[..4].iter().all(|r| r.action == RowAction::Press));
         assert_eq!(
-            p.rows[5].action,
+            p.rows[4].action,
             RowAction::Hold,
             "the left button must be a Hold row so it can drive movement"
+        );
+        assert_eq!(
+            p.rows[5].action,
+            RowAction::Press,
+            "the right button is the fifth skill bind, so it stays a tap"
         );
         assert!(p.rows.iter().all(|r| r.ms == 1000));
     }
