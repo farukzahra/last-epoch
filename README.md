@@ -48,9 +48,17 @@ So this project copies the mechanism, adds the honest safety rails the mechanism
 | **Pick your monitor** | The window opens on the monitor that is *not* running the game, and stays above it |
 | **Screen-capture check** | Detects that the game's frame can be read and warns loudly when it cannot, because the planned buff detection depends on it |
 
-## Quick start
+## Download
 
-There is no installer yet. Build it:
+Grab `le-turbo.exe` from the [latest release](https://github.com/farukzahra/last-epoch/releases/latest), drop it in a folder of its own, and run it. There is nothing else to install: it uses the WebView2 runtime that ships with Windows 10 and 11.
+
+Rows start **disabled**. Turn one **ON**, then press **F2**. `F3` disarms, `F9` quits.
+
+Keep it somewhere you can write to — the app creates `profile.json` and `config.json` beside the executable, so not `Program Files`.
+
+The binary is not code-signed, so SmartScreen warns the first time: **More info** → **Run anyway**.
+
+## Build from source
 
 ```powershell
 git clone https://github.com/farukzahra/last-epoch.git
@@ -58,9 +66,7 @@ cd last-epoch
 cargo build --release
 ```
 
-The binary lands at `target\release\le-turbo.exe` — about 8 MB, no runtime to install. It needs [WebView2](https://developer.microsoft.com/microsoft-edge/webview2/), which ships with Windows 10/11.
-
-Run it, turn a row **ON**, and press **F2**.
+The binary lands at `target\release\le-turbo.exe`.
 
 To build the debug loop instead:
 
