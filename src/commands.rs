@@ -52,8 +52,7 @@ pub fn build_state(state: &AppState) -> StateDto {
         ),
         expected_process: config.expected_process.clone(),
         profile_path: state.paths.profile.display().to_string(),
-        // Task 10 replaces this with a real capture check.
-        capture_ok: true,
+        capture_ok: state.capture_ok.load(Ordering::Relaxed),
     }
 }
 

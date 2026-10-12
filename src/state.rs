@@ -35,6 +35,9 @@ pub struct AppState {
     pub paths: Paths,
     pub stop: Arc<AtomicBool>,
     pub scancode: AtomicBool,
+    /// Latest capture sanity result: false means we found the game but its
+    /// frame came back black, which is what exclusive fullscreen looks like.
+    pub capture_ok: AtomicBool,
 }
 
 impl AppState {
@@ -57,6 +60,7 @@ impl AppState {
             paths,
             stop: Arc::new(AtomicBool::new(false)),
             scancode: AtomicBool::new(false),
+            capture_ok: AtomicBool::new(true),
         }
     }
 }
