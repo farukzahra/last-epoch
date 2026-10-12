@@ -95,24 +95,36 @@ impl From<serde_json::Error> for ProfileError {
 }
 
 impl Profile {
-    /// The user's in-game remap: skills on 1-4 plus the right mouse button,
-    /// every row shipped disabled.
+    /// The user's in-game remap: skills on 1-4 plus the right mouse button, and
+    /// a held left button for movement. Every row ships disabled.
     pub fn default_profile() -> Profile {
-        let keys = ["1", "2", "3", "4", "Mouse Right"];
+        let presses = ["1", "2", "3", "4", "Mouse Right"];
+        let mut rows: Vec<Row> = presses
+            .iter()
+            .enumerate()
+            .map(|(i, key)| Row {
+                id: i as u32,
+                key: (*key).into(),
+                action: RowAction::Press,
+                ms: 1000,
+                enabled: false,
+                condition: None,
+            })
+            .collect();
+        // Movement: holding the left button makes the character run toward the
+        // cursor, which is exactly what a Hold row is for.
+        let next_id = rows.len() as u32;
+        rows.push(Row {
+            id: next_id,
+            key: "Mouse Left".into(),
+            action: RowAction::Hold,
+            ms: 1000,
+            enabled: false,
+            condition: None,
+        });
         Profile {
             version: PROFILE_VERSION,
-            rows: keys
-                .iter()
-                .enumerate()
-                .map(|(i, key)| Row {
-                    id: i as u32,
-                    key: (*key).into(),
-                    action: RowAction::Press,
-                    ms: 1000,
-                    enabled: false,
-                    condition: None,
-                })
-                .collect(),
+            rows,
         }
     }
 
@@ -173,9 +185,18 @@ mod tests {
         let p = Profile::default_profile();
         assert_eq!(p.version, PROFILE_VERSION);
         let keys: Vec<&str> = p.rows.iter().map(|r| r.key.as_str()).collect();
-        assert_eq!(keys, vec!["1", "2", "3", "4", "Mouse Right"]);
+        assert_eq!(
+            keys,
+            vec!["1", "2", "3", "4", "Mouse Right", "Mouse Left"],
+            "skills on 1-4 and right mouse, plus a held left button for movement"
+        );
         assert!(p.rows.iter().all(|r| !r.enabled), "rows must ship disabled");
-        assert!(p.rows.iter().all(|r| r.action == RowAction::Press));
+        assert!(p.rows[..5].iter().all(|r| r.action == RowAction::Press));
+        assert_eq!(
+            p.rows[5].action,
+            RowAction::Hold,
+            "the left button must be a Hold row so it can drive movement"
+        );
         assert!(p.rows.iter().all(|r| r.ms == 1000));
     }
 

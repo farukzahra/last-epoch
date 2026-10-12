@@ -1,5 +1,79 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>LE Turbo</title></head>
-<body><h1>LE Turbo</h1></body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LE Turbo</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="warn" class="warn hidden"></div>
+
+    <header class="top">
+      <div class="brand">
+        <span class="brand-small" data-i18n="brandSmall"></span>
+        <span class="brand-big" data-i18n="brandBig"></span>
+        <span class="badge" data-i18n="version"></span>
+      </div>
+      <div class="top-actions">
+        <button id="save" data-i18n="save"></button>
+        <button id="load" data-i18n="load"></button>
+        <button id="reset" data-i18n="reset"></button>
+      </div>
+    </header>
+
+    <main class="body">
+      <section class="panel rows-panel">
+        <h2 data-i18n="rowsHeading"></h2>
+        <div class="rule"></div>
+
+        <div class="grid-head">
+          <span data-i18n="colOn"></span>
+          <span data-i18n="colKey"></span>
+          <span data-i18n="colAction"></span>
+          <span data-i18n="colMs"></span>
+          <span></span>
+        </div>
+
+        <div id="rows"></div>
+
+        <div class="row-actions">
+          <button id="add" data-i18n="addRow"></button>
+          <button id="fire" data-i18n="testFire"></button>
+        </div>
+      </section>
+
+      <aside class="side">
+        <h2 data-i18n="hotkeysHeading"></h2>
+
+        <h3 data-i18n="hotkeysLabel"></h3>
+        <div class="box hotkey"><kbd>F2</kbd><span data-i18n="hotkeyArm"></span></div>
+        <div class="box hotkey"><kbd>F3</kbd><span data-i18n="hotkeyDisarm"></span></div>
+        <div class="box hotkey"><kbd>F9</kbd><span data-i18n="hotkeyQuit"></span></div>
+
+        <h3 data-i18n="statusHeading"></h3>
+        <div class="box status">
+          <div id="armed" class="armed off"></div>
+          <div class="stat"><span data-i18n="labelFocus"></span><b id="focus">-</b></div>
+          <div class="stat"><span data-i18n="labelPresses"></span><b id="presses">0</b></div>
+          <div class="stat"><span data-i18n="labelSkipped"></span><b id="skipped">0</b></div>
+          <div class="stat path"><span data-i18n="labelProfile"></span><b id="profile"></b></div>
+        </div>
+
+        <h3 data-i18n="optionsLabel"></h3>
+        <label class="check"><input type="checkbox" id="gate" checked /><span data-i18n="gateOption"></span></label>
+        <label class="check"><input type="checkbox" id="scancode" /><span data-i18n="scancodeOption"></span></label>
+
+        <p class="hint" data-i18n="hint"></p>
+      </aside>
+    </main>
+
+    <footer class="bottom">
+      <button id="start" class="go" data-i18n="start"></button>
+      <button id="stop" class="halt" data-i18n="stop"></button>
+      <span id="flash" class="flash"></span>
+    </footer>
+
+    <script type="module" src="./main.js"></script>
+  </body>
 </html>

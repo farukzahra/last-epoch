@@ -92,9 +92,10 @@ the ones marked **measured**.
 4. **Window placement:** the secondary monitor (the one not holding the game),
    offset slightly from the work-area corner, topmost by default, with a switch
    to disable topmost.
-5. **Row model:** `ON/OFF | KEY | MILLISECONDS`, plus add-row and remove-row.
-   Defaults are the user's remap: `1 2 3 4` and `Mouse Right`, all at 1000 ms,
-   all **OFF**.
+5. **Row model:** `ON/OFF | KEY | ACTION | MILLISECONDS`, plus add-row and
+   remove-row. Defaults are the user's remap — `1 2 3 4` and `Mouse Right` as
+   `Press`, plus **`Mouse Left` as `Hold` for movement** — all at 1000 ms, all
+   **OFF**.
 6. **Safety gate:** a default-on option "only inject while Last Epoch is
    focused". Key detail: the check is on the foreground window's title/process.
 7. **Cosmetics do not affect behaviour.** Row icons are decoration only.
