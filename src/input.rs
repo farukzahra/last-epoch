@@ -18,6 +18,8 @@ pub trait InputSink {
     fn release(&mut self, key: Key) -> Result<(), InputError>;
     fn release_all(&mut self) -> Result<(), InputError>;
     fn held(&self) -> &[Key];
+    /// Switch between virtual-key and scancode injection at runtime.
+    fn set_scancode(&mut self, scancode: bool);
 }
 
 /// An `InputSink` that tracks which keys it is currently holding, so nothing
@@ -35,10 +37,6 @@ impl<B: RawSender> SendInputSink<B> {
             scancode,
             held: Vec::new(),
         }
-    }
-
-    pub fn set_scancode(&mut self, scancode: bool) {
-        self.scancode = scancode;
     }
 
     #[cfg(test)]
@@ -89,6 +87,10 @@ impl<B: RawSender> InputSink for SendInputSink<B> {
 
     fn held(&self) -> &[Key] {
         &self.held
+    }
+
+    fn set_scancode(&mut self, scancode: bool) {
+        self.scancode = scancode;
     }
 }
 

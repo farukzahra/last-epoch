@@ -67,6 +67,19 @@ impl<S: InputSink> Engine<S> {
         self.gate = gate;
     }
 
+    pub fn gate(&self) -> bool {
+        self.gate
+    }
+
+    pub fn set_scancode(&mut self, scancode: bool) {
+        self.sink.set_scancode(scancode);
+    }
+
+    /// Fire one press outside the schedule, for the UI's "Fire once" button.
+    pub fn fire_once(&mut self, key: Key) -> Result<(), crate::input::InputError> {
+        self.sink.press(key)
+    }
+
     pub fn presses(&self) -> u64 {
         self.presses
     }
@@ -196,6 +209,7 @@ mod tests {
         fn held(&self) -> &[Key] {
             &self.held
         }
+        fn set_scancode(&mut self, _scancode: bool) {}
     }
 
     struct FakeProbe {
