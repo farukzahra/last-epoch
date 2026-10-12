@@ -19,7 +19,7 @@ $auth = @{
 }
 
 $installer = Get-ChildItem (Join-Path $root 'target\release\bundle\nsis') -Filter '*-setup.exe' -ErrorAction SilentlyContinue |
-    Select-Object -First 1
+    Sort-Object LastWriteTime -Descending | Select-Object -First 1
 if (-not $installer) { throw 'no NSIS installer found - run cargo tauri build first' }
 Write-Host "installer: $($installer.FullName) ($([math]::Round($installer.Length / 1MB, 2)) MB)"
 
