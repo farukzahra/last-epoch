@@ -1,6 +1,7 @@
 pub mod keys;
 pub mod profile;
 pub mod safety;
+pub mod schedule;
 
 pub fn greeting() -> &'static str {
     "LE Turbo"
