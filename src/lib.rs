@@ -42,6 +42,7 @@ pub fn run() {
                     state.probe.clone(),
                     state.stop.clone(),
                 );
+                win::hotkeys::spawn_hotkey_loop(app.handle().clone(), state.stop.clone());
             }
 
             let handle = app.handle().clone();
