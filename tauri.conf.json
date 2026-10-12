@@ -7,9 +7,29 @@
     "frontendDist": "ui"
   },
   "bundle": {
+    "active": true,
+    "targets": ["nsis"],
     "icon": [
-      "icons/icon.ico"
-    ]
+      "icons/icon.ico",
+      "icons/icon.png",
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png"
+    ],
+    "publisher": "Faruk Zahra",
+    "copyright": "Copyright (c) 2026 Faruk Zahra",
+    "category": "Utility",
+    "shortDescription": "Presses your Last Epoch skills on a clock.",
+    "longDescription": "Repeats key and mouse presses inside Last Epoch. Press rows tap on an interval, Hold rows stay down for movement, a focus gate keeps it out of other windows, and no input is ever left held.",
+    "licenseFile": "LICENSE",
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser",
+        "installerIcon": "icons/icon.ico",
+        "displayLanguageSelector": false,
+        "languages": ["English", "PortugueseBR"]
+      }
+    }
   },
   "app": {
     "withGlobalTauri": true,

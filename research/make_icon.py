@@ -63,6 +63,34 @@ def ico_image(size):
     return header + bytes(xor) + bytes(mask)
 
 
+def png_rgba(size):
+    """A minimal 256x256 RGBA PNG, no image library needed."""
+    import zlib
+
+    rows = pixels(size)
+    raw = bytearray()
+    for row in rows:
+        raw.append(0)  # filter type 0
+        for r, g, b in row:
+            raw += bytes((r, g, b, 0xFF))
+
+    def chunk(tag, data):
+        body = tag + data
+        return (
+            struct.pack(">I", len(data))
+            + body
+            + struct.pack(">I", zlib.crc32(body) & 0xFFFFFFFF)
+        )
+
+    header = struct.pack(">IIBBBBB", size, size, 8, 6, 0, 0, 0)
+    return (
+        b"\x89PNG\r\n\x1a\n"
+        + chunk(b"IHDR", header)
+        + chunk(b"IDAT", zlib.compress(bytes(raw), 9))
+        + chunk(b"IEND", b"")
+    )
+
+
 def main():
     sizes = (16, 32, 48)
     images = [ico_image(s) for s in sizes]
@@ -78,10 +106,29 @@ def main():
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     icons = os.path.join(root, "icons")
     os.makedirs(icons, exist_ok=True)
-    path = os.path.join(icons, "icon.ico")
-    with open(path, "wb") as fh:
+
+    ico_path = os.path.join(icons, "icon.ico")
+    with open(ico_path, "wb") as fh:
         fh.write(out)
-    print(f"wrote {path} ({len(out)} bytes, sizes {sizes})")
+    print(f"wrote {ico_path} ({len(out)} bytes, sizes {sizes})")
+
+    # The bundler also wants a large raster icon for the installer and shortcuts.
+    png_path = os.path.join(icons, "icon.png")
+    png = png_rgba(256)
+    with open(png_path, "wb") as fh:
+        fh.write(png)
+    print(f"wrote {png_path} ({len(png)} bytes, 256x256 RGBA)")
+
+    for name, size in (
+        ("32x32.png", 32),
+        ("128x128.png", 128),
+        ("128x128@2x.png", 256),
+    ):
+        path = os.path.join(icons, name)
+        data = png_rgba(size)
+        with open(path, "wb") as fh:
+            fh.write(data)
+        print(f"wrote {path} ({len(data)} bytes, {size}x{size})")
 
 
 if __name__ == "__main__":

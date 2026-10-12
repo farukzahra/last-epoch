@@ -50,13 +50,17 @@ So this project copies the mechanism, adds the honest safety rails the mechanism
 
 ## Download
 
-Grab `le-turbo.exe` from the [latest release](https://github.com/farukzahra/last-epoch/releases/latest), drop it in a folder of its own, and run it. There is nothing else to install: it uses the WebView2 runtime that ships with Windows 10 and 11.
+From the [latest release](https://github.com/farukzahra/last-epoch/releases/latest) take either:
+
+**Installer** — `LE.Turbo_0.1.0_x64-setup.exe`. Installs for the current user only, so it never asks for administrator rights. It adds a Start Menu entry, and the finish page offers a **desktop shortcut** (ticked by default). Remove it later from Settings → Apps.
+
+**Portable** — `le-turbo.exe`. No install step at all; drop it in a folder and run it. Keep it somewhere writable, because the app creates `profile.json` and `config.json` beside the executable.
+
+Either way there is nothing else to install: it uses the WebView2 runtime that ships with Windows 10 and 11.
 
 Rows start **disabled**. Turn one **ON**, then press **F2**. `F3` disarms, `F9` quits.
 
-Keep it somewhere you can write to — the app creates `profile.json` and `config.json` beside the executable, so not `Program Files`.
-
-The binary is not code-signed, so SmartScreen warns the first time: **More info** → **Run anyway**.
+Neither binary is code-signed, so SmartScreen warns the first time: **More info** → **Run anyway**. The installer is built with NSIS and its source configuration is `tauri.conf.json` in this repository.
 
 ## Build from source
 
