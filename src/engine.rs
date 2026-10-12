@@ -163,7 +163,6 @@ impl<S: InputSink> Engine<S> {
 mod tests {
     use super::*;
     use crate::input::InputError;
-    use crate::keys::MouseButton;
     use crate::profile::{Row, RowAction};
 
     #[derive(Default)]
