@@ -42,7 +42,8 @@ So this project copies the mechanism, adds the honest safety rails the mechanism
 | **Focus gate** | Injection only happens while the game owns the foreground, matched on the **process name**, not the window title |
 | **Cursor containment** | Mouse rows are skipped unless the cursor is inside the game window — a synthetic click lands on whatever is under the pointer, not on the focused window |
 | **Guaranteed release** | Every held input is released on disarm, on quit, on focus loss, on profile change, and on unwind |
-| **Global hotkeys** | `F2` arms, `F3` disarms, `F9` quits, working regardless of which window has focus |
+| **Hotkeys** | One key starts and stops the presser, another quits it, and **both are rebindable** — press Change, press any single key or mouse button, confirm |
+| **Hotkey capture** | The app tells you which key it saw and waits for you to confirm it; modifiers and combos are refused, and the hotkeys stand down while recording |
 | **Profiles** | Save, load and reset a JSON profile beside the executable |
 | **Portable config** | `config.json` holds the expected process and window placement |
 | **Pick your monitor** | The window opens on the monitor that is *not* running the game, and stays above it |
@@ -52,13 +53,13 @@ So this project copies the mechanism, adds the honest safety rails the mechanism
 
 From the [latest release](https://github.com/farukzahra/last-epoch/releases/latest) take either:
 
-**Installer** — `LE.Turbo_0.1.0_x64-setup.exe`. Installs for the current user only, so it never asks for administrator rights. It adds a Start Menu entry, and the finish page offers a **desktop shortcut** (ticked by default). Remove it later from Settings → Apps.
+**Installer** — `LE.Turbo_0.2.0_x64-setup.exe`. Installs for the current user only, so it never asks for administrator rights. It adds a Start Menu entry, and the finish page offers a **desktop shortcut** (ticked by default). Remove it later from Settings → Apps.
 
 **Portable** — `le-turbo.exe`. No install step at all; drop it in a folder and run it. Keep it somewhere writable, because the app creates `profile.json` and `config.json` beside the executable.
 
 Either way there is nothing else to install: it uses the WebView2 runtime that ships with Windows 10 and 11.
 
-Rows start **disabled**. Turn one **ON**, then press **F2**. `F3` disarms, `F9` quits.
+Rows start **disabled**. Turn one **ON**, then press the toggle key — `F2` until you change it in **Hotkeys & Settings**. Pressing it again stops the presser.
 
 Neither binary is code-signed, so SmartScreen warns the first time: **More info** → **Run anyway**. The installer is built with NSIS and its source configuration is `tauri.conf.json` in this repository.
 

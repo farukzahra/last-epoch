@@ -55,16 +55,49 @@ fn default_row(id: u32, key: &str, action: RowAction) -> Row {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Hotkeys {
-    pub arm: String,
-    pub disarm: String,
+    pub toggle: String,
     pub quit: String,
+}
+
+/// The two bindable slots, in a stable order. Names, not indices, are the stable
+/// thing: the config file and the UI both speak them.
+pub const HOTKEY_SLOTS: [&str; 2] = ["toggle", "quit"];
+
+impl Hotkeys {
+    /// `(slot, key name)` for each slot, in `HOTKEY_SLOTS` order.
+    pub fn iter(&self) -> impl Iterator<Item = (&'static str, &String)> + '_ {
+        HOTKEY_SLOTS.iter().map(move |slot| {
+            let key = match *slot {
+                "toggle" => &self.toggle,
+                _ => &self.quit,
+            };
+            (*slot, key)
+        })
+    }
+
+    pub fn get(&self, slot: &str) -> Option<&String> {
+        match slot {
+            "toggle" => Some(&self.toggle),
+            "quit" => Some(&self.quit),
+            _ => None,
+        }
+    }
+
+    /// Returns false for an unknown slot, so a bad request cannot invent a slot.
+    pub fn set(&mut self, slot: &str, key: String) -> bool {
+        match slot {
+            "toggle" => self.toggle = key,
+            "quit" => self.quit = key,
+            _ => return false,
+        }
+        true
+    }
 }
 
 impl Default for Hotkeys {
     fn default() -> Self {
         Hotkeys {
-            arm: "F2".into(),
-            disarm: "F3".into(),
+            toggle: "F2".into(),
             quit: "F9".into(),
         }
     }
@@ -154,10 +187,27 @@ impl AppConfig {
 
     /// A missing *or malformed* config must never stop the app from starting.
     pub fn load_or_default(path: &Path) -> AppConfig {
-        match std::fs::read_to_string(path) {
-            Ok(text) => serde_json::from_str(&text).unwrap_or_default(),
-            Err(_) => AppConfig::default(),
+        let Ok(text) = std::fs::read_to_string(path) else {
+            return AppConfig::default();
+        };
+        let Ok(value) = serde_json::from_str::<serde_json::Value>(&text) else {
+            return AppConfig::default();
+        };
+        let mut config: AppConfig = serde_json::from_value(value.clone()).unwrap_or_default();
+
+        // v0.1 shipped separate `arm` and `disarm` binds. They collapsed into one
+        // toggle, so carry the old arm key over rather than resetting the user.
+        let hotkeys = value.get("hotkeys");
+        let had_toggle = hotkeys.and_then(|h| h.get("toggle")).is_some();
+        if !had_toggle {
+            if let Some(legacy_arm) = hotkeys
+                .and_then(|h| h.get("arm"))
+                .and_then(|v| v.as_str())
+            {
+                config.hotkeys.toggle = legacy_arm.to_string();
+            }
         }
+        config
     }
 
     pub fn save(&self, path: &Path) -> Result<(), ProfileError> {
@@ -295,8 +345,54 @@ mod tests {
     #[test]
     fn default_config_pins_the_documented_hotkeys() {
         let cfg = AppConfig::default_config();
-        assert_eq!(cfg.hotkeys.arm, "F2");
-        assert_eq!(cfg.hotkeys.disarm, "F3");
+        assert_eq!(cfg.hotkeys.toggle, "F2");
         assert_eq!(cfg.hotkeys.quit, "F9");
+    }
+
+    #[test]
+    fn hotkeys_can_be_read_and_written_by_slot_name() {
+        let mut hotkeys = Hotkeys::default();
+        assert_eq!(hotkeys.get("toggle").map(String::as_str), Some("F2"));
+        assert!(hotkeys.set("toggle", "Mouse Middle".into()));
+        assert_eq!(hotkeys.get("toggle").map(String::as_str), Some("Mouse Middle"));
+        assert!(
+            !hotkeys.set("nope", "F4".into()),
+            "an unknown slot must not be written"
+        );
+        assert_eq!(hotkeys.get("nope"), None);
+    }
+
+    #[test]
+    fn hotkeys_iter_reports_the_slots_in_a_stable_order() {
+        let hotkeys = Hotkeys::default();
+        let slots: Vec<&str> = hotkeys.iter().map(|(slot, _)| slot).collect();
+        assert_eq!(slots, vec!["toggle", "quit"]);
+    }
+
+    #[test]
+    fn a_hotkey_edit_survives_a_round_trip_through_disk() {
+        let path = temp_path("cfg_hotkeys");
+        let mut cfg = AppConfig::default_config();
+        cfg.hotkeys.set("toggle", "Mouse Middle".into());
+        cfg.save(&path).unwrap();
+        let loaded = AppConfig::load_or_default(&path);
+        assert_eq!(loaded.hotkeys.toggle, "Mouse Middle");
+    }
+
+    #[test]
+    fn a_legacy_arm_bind_becomes_the_toggle() {
+        let path = temp_path("cfg_legacy");
+        std::fs::write(
+            &path,
+            r#"{"expected_process":"Last Epoch.exe","open_on_other_monitor":true,
+                "hotkeys":{"arm":"Mouse Middle","disarm":"F3","quit":"F9"}}"#,
+        )
+        .unwrap();
+        let loaded = AppConfig::load_or_default(&path);
+        assert_eq!(
+            loaded.hotkeys.toggle, "Mouse Middle",
+            "the old arm key must carry over to the new toggle slot"
+        );
+        assert_eq!(loaded.hotkeys.quit, "F9");
     }
 }

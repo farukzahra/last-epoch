@@ -122,10 +122,15 @@ the ones marked **measured**.
     exactly the anti-goal. The gate matches the foreground window's **process
     image name** (`Last Epoch.exe`), with the expected name stored in **app
     config** (not the profile) so it can be corrected without a rebuild.
-12. **Hotkeys are fixed F2/F3/F9 in v1, stored in app config, not the profile.**
-    Rebindable shortcuts are a v1.1 item; the reference tool supports rebinding
-    and that is worth copying later, but it adds a field, a capture UI and
-    another versioning surface for no v1 benefit.
+12. **Hotkeys: one toggle, one quit, both rebindable.** The user asked for a single
+    key that both starts and stops, so `arm`/`disarm` collapsed into one `toggle`
+    slot (press it while idle and it arms, press it while running and it disarms).
+    Pressing **Change** in the UI starts a capture: the app reports the key it saw
+    and waits for the user to confirm it. A bind is **one key**, no modifiers, and
+    a mouse button counts — the user's own choice is the middle button. Binds live
+    in app config; configs from v0.1 carried their old `arm` key over to `toggle`.
+    While a capture is in progress the hotkeys stand down, so recording a bind for
+    the quit key cannot quit the app.
 13. **The profile reserves the v2 shape now.** Each row carries an action
     discriminator (`press` for v1) and optional condition fields (region of
     interest + reference image), so shipping v2 does not invalidate v1 files.

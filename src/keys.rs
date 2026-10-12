@@ -95,6 +95,17 @@ impl Key {
     pub fn is_mouse(&self) -> bool {
         matches!(self, Key::Mouse(_))
     }
+
+    /// The virtual key a global poller watches for this key. Mouse buttons have
+    /// virtual keys too, which is what makes them bindable as hotkeys.
+    pub fn poll_vk(&self) -> i32 {
+        match self {
+            Key::Vk(vk) => i32::from(*vk),
+            Key::Mouse(MouseButton::Left) => 0x01,   // VK_LBUTTON
+            Key::Mouse(MouseButton::Right) => 0x02,  // VK_RBUTTON
+            Key::Mouse(MouseButton::Middle) => 0x04, // VK_MBUTTON
+        }
+    }
 }
 
 #[cfg(test)]
@@ -152,5 +163,23 @@ mod tests {
     fn is_mouse_distinguishes_mouse_from_keyboard() {
         assert!(Key::parse("Mouse Left").unwrap().is_mouse());
         assert!(!Key::parse("1").unwrap().is_mouse());
+    }
+
+    #[test]
+    fn poll_vk_covers_keyboard_and_mouse_buttons() {
+        assert_eq!(Key::parse("Mouse Left").unwrap().poll_vk(), 0x01);
+        assert_eq!(Key::parse("Mouse Right").unwrap().poll_vk(), 0x02);
+        assert_eq!(Key::parse("Mouse Middle").unwrap().poll_vk(), 0x04);
+        assert_eq!(Key::parse("F2").unwrap().poll_vk(), 0x71);
+        assert_eq!(Key::parse("1").unwrap().poll_vk(), 0x31);
+    }
+
+    #[test]
+    fn poll_vk_round_trips_through_the_canonical_name() {
+        for name in KEY_CHOICES {
+            let key = Key::parse(name).unwrap();
+            let slot = Key::parse(&key.name()).unwrap();
+            assert_eq!(key.poll_vk(), slot.poll_vk(), "{name}");
+        }
     }
 }

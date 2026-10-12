@@ -287,6 +287,36 @@ select option {
   font-size: 12px;
 }
 
+.hotkey.capturing {
+  border-color: var(--teal);
+  background: #16241f;
+}
+
+.hotkey-desc {
+  flex: 1;
+  color: var(--muted);
+}
+
+.hotkey.capturing .hotkey-desc {
+  color: var(--teal);
+}
+
+.tiny {
+  padding: 3px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 2px;
+}
+
+.tiny.primary {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+.tiny:disabled {
+  opacity: 0.4;
+}
+
 kbd {
   font: 700 12px Consolas, monospace;
   color: var(--gold);

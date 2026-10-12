@@ -34,10 +34,11 @@ pub struct AppState {
     pub profile: Mutex<Profile>,
     pub paths: Paths,
     pub stop: Arc<AtomicBool>,
-    pub scancode: AtomicBool,
     /// Latest capture sanity result: false means we found the game but its
     /// frame came back black, which is what exclusive fullscreen looks like.
     pub capture_ok: AtomicBool,
+    /// True while the UI is recording a new hotkey, so the hotkeys stand down.
+    pub capturing: AtomicBool,
 }
 
 impl AppState {
@@ -59,8 +60,8 @@ impl AppState {
             profile: Mutex::new(profile),
             paths,
             stop: Arc::new(AtomicBool::new(false)),
-            scancode: AtomicBool::new(false),
             capture_ok: AtomicBool::new(true),
+            capturing: AtomicBool::new(false),
         }
     }
 }

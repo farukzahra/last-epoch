@@ -6,7 +6,7 @@ $env:GIT_TERMINAL_PROMPT = '0'
 $owner = 'farukzahra'
 $repo = 'last-epoch'
 $root = 'C:\repo\last-epoch'
-$tag = 'v0.1.0'
+$tag = 'v0.2.0'
 
 $pat = (Select-String -Path 'C:\faruk\secrets\github\pat.txt' -Pattern '^(ghp_|github_pat_|gho_)' |
     Select-Object -First 1).Line.Trim()

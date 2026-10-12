@@ -1,7 +1,7 @@
 export const S = {
   brandSmall: "LAST EPOCH",
   brandBig: "TURBO",
-  version: "v0.1",
+  version: "v0.2",
 
   rowsHeading: "Skills & Clicks",
   colOn: "ON",
@@ -11,31 +11,32 @@ export const S = {
 
   actionPress: "Press",
   actionHold: "Hold",
-
-  addRow: "+ Add row",
-  testFire: "Fire once",
   removeRow: "Remove row",
 
   save: "Save",
   load: "Load",
   reset: "Reset",
 
-  start: "START (F2)",
-  stop: "STOP (F3)",
+  start: "START",
+  stop: "STOP",
 
   hotkeysHeading: "Hotkeys & Settings",
   hotkeysLabel: "HOTKEYS",
   statusHeading: "STATUS",
   optionsLabel: "OPTIONS",
 
-  hotkeyArm: "arms the presser",
-  hotkeyDisarm: "disarms it",
+  hotkeyToggle: "starts and stops it",
   hotkeyQuit: "quits the app",
 
+  change: "Change",
+  useThis: "Use this",
+  cancel: "Cancel",
+  capturePrompt: "Press a key or a mouse button…",
+  captureDetected: "Detected — confirm it",
+  captureNotSupported: "That key cannot be used. Try a letter, a digit, F1-F24, Space, Tab or a mouse button.",
+  captureEscape: "Cancelled",
+
   gateOption: "Only inject while the game is focused",
-  scancodeOption: "Scancode mode (if VK fails)",
-  topmostOption: "Always on top",
-  otherMonitorOption: "Open on the other monitor",
 
   labelArmed: "ARMED",
   labelDisarmed: "DISARMED",
@@ -47,9 +48,6 @@ export const S = {
   captureWarning:
     "Cannot read the game screen. Put Last Epoch in windowed or borderless mode, or pixel detection will never work.",
 
-  hint: "Turn rows ON to arm them, then press F2. Hold on Mouse Left makes the character run.",
-
-  errRow: "row",
-  errDoesNotExist: "does not exist",
+  hint: "Turn rows ON, then press the start/stop key. Hold on Mouse Left makes the character run.",
   savedTo: "saved to"
 };

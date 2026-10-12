@@ -1,8 +1,6 @@
 import { S } from "./strings.js";
 
 const { invoke } = window.__TAURI__.core;
-// `event` may be absent depending on how the global API is injected; the
-// polling fallback below keeps the status live either way.
 const tauriEvent = (window.__TAURI__ && window.__TAURI__.event) || null;
 
 // Mirrors Key::KEY_CHOICES on the Rust side.
@@ -14,7 +12,27 @@ const KEY_CHOICES = [
   ...Array.from({ length: 24 }, (_, i) => `F${i + 1}`)
 ];
 
+const HOTKEY_SLOTS = ["toggle", "quit"];
+const HOTKEY_LABELS = { toggle: "hotkeyToggle", quit: "hotkeyQuit" };
+
+const MOUSE_NAMES = { 0: "Mouse Left", 1: "Mouse Middle", 2: "Mouse Right" };
+
+// The middle button is what the user wants for "disarm", so be tolerant of how
+// the button number arrives: some event shapes carry only the `buttons` bitmask.
+function mouseName(event) {
+  if (typeof event.button === "number" && MOUSE_NAMES[event.button]) {
+    return MOUSE_NAMES[event.button];
+  }
+  const mask = event.buttons || 0;
+  if (mask & 4) return "Mouse Middle";
+  if (mask & 2) return "Mouse Right";
+  if (mask & 1) return "Mouse Left";
+  return null;
+}
+
 let rows = [];
+let hotkeys = { arm: "F2", disarm: "F3", quit: "F9" };
+let capture = null; // { slot, detected }
 let optionsSynced = false;
 
 const $ = (id) => document.getElementById(id);
@@ -29,6 +47,97 @@ function applyStrings() {
 function flash(message) {
   $("flash").textContent = message;
 }
+
+function showFailure(message) {
+  const warn = $("warn");
+  warn.textContent = `UI error: ${message}`;
+  warn.classList.remove("hidden");
+}
+
+/* ------------------------------------------------------------- key capture --- */
+
+// One key only, no modifiers. Returns the canonical name the Rust side knows, or
+// null when the press cannot be a bind.
+function nameFromEvent(event) {
+  if (event.type === "mousedown") {
+    return mouseName(event);
+  }
+  const key = event.key;
+  if (key === " ") return "Space";
+  if (key === "Tab") return "Tab";
+  if (key === "Enter") return "Enter";
+  if (key.length === 1) {
+    const upper = key.toUpperCase();
+    return /[0-9A-Z]/.test(upper) ? upper : null;
+  }
+  return /^F([1-9]|1[0-9]|2[0-4])$/.test(key) ? key : null;
+}
+
+function onCaptureInput(event) {
+  if (!capture) return;
+
+  // Let clicks on the capture controls through, or the button that confirms the
+  // bind would be captured as a bind itself and could never be pressed.
+  if (event.target && event.target.closest && event.target.closest(".hotkey")) {
+    return;
+  }
+
+  // A modifier on its own is not a bind, and a combo is not wanted.
+  if (event.type === "keydown" && /^(Shift|Control|Alt|Meta)$/.test(event.key)) {
+    event.preventDefault();
+    flash(S.captureNotSupported);
+    return;
+  }
+  if (event.type === "keydown" && event.key === "Escape") {
+    event.preventDefault();
+    stopCapture(S.captureEscape);
+    return;
+  }
+
+  // Swallow the press so a middle click cannot scroll and a hotkey cannot fire.
+  event.preventDefault();
+  event.stopPropagation();
+
+  const name = nameFromEvent(event);
+  if (!name) {
+    flash(S.captureNotSupported);
+    return;
+  }
+  capture.detected = name;
+  renderHotkeys();
+}
+
+function startCapture(slot) {
+  capture = { slot, detected: null };
+  renderHotkeys();
+  invoke("set_capture_mode", { active: true }).catch((error) => flash(String(error)));
+}
+
+function stopCapture(message) {
+  capture = null;
+  renderHotkeys();
+  if (message) flash(message);
+  invoke("set_capture_mode", { active: false }).catch(() => {});
+}
+
+async function confirmHotkey(slot, key) {
+  if (!key) return;
+  try {
+    const status = await invoke("set_hotkey", { slot, key });
+    hotkeys = status.hotkeys;
+    capture = null;
+    renderHotkeys();
+    applyStatus(status);
+    flash(`${key} — ${S[HOTKEY_LABELS[slot]]}`);
+  } catch (error) {
+    flash(String(error));
+    capture = null;
+    renderHotkeys();
+  }
+  invoke("set_capture_mode", { active: false }).catch(() => {});
+}
+
+/* ------------------------------------------------------------------- rows --- */
 
 function renderRows() {
   const host = $("rows");
@@ -68,7 +177,7 @@ function renderRows() {
     action.addEventListener("change", () => {
       rows[index].action = action.value;
       commit();
-      renderRows(); // Hold rows have no interval
+      renderRows();
     });
 
     const ms = document.createElement("input");
@@ -93,9 +202,58 @@ function renderRows() {
   });
 }
 
-// Every mutation goes through one chain so two quick edits cannot race and
-// overwrite each other, and the DOM is always rendered from the backend's answer
-// rather than from a local array that may have drifted.
+/* ---------------------------------------------------------------- hotkeys --- */
+
+function renderHotkeys() {
+  const host = $("hotkeys");
+  host.replaceChildren();
+
+  for (const slot of HOTKEY_SLOTS) {
+    const capturing = capture && capture.slot === slot;
+
+    const line = document.createElement("div");
+    line.className = capturing ? "box hotkey capturing" : "box hotkey";
+
+    const badge = document.createElement("kbd");
+    badge.textContent = capturing ? capture.detected || "…" : hotkeys[slot];
+    line.append(badge);
+
+    const desc = document.createElement("span");
+    desc.className = "hotkey-desc";
+    if (!capturing) {
+      desc.textContent = S[HOTKEY_LABELS[slot]];
+    } else {
+      desc.textContent = capture.detected ? S.captureDetected : S.capturePrompt;
+    }
+    line.append(desc);
+
+    if (!capturing) {
+      const change = document.createElement("button");
+      change.className = "tiny";
+      change.textContent = S.change;
+      change.addEventListener("click", () => startCapture(slot));
+      line.append(change);
+    } else {
+      const use = document.createElement("button");
+      use.className = "tiny primary";
+      use.textContent = S.useThis;
+      use.disabled = !capture.detected;
+      use.addEventListener("click", () => confirmHotkey(slot, capture.detected));
+
+      const cancel = document.createElement("button");
+      cancel.className = "tiny";
+      cancel.textContent = S.cancel;
+      cancel.addEventListener("click", () => stopCapture(null));
+
+      line.append(use, cancel);
+    }
+
+    host.append(line);
+  }
+}
+
+/* --------------------------------------------------------------- mutate ----- */
+
 let chain = Promise.resolve();
 
 function queue(work) {
@@ -124,20 +282,7 @@ function removeRow(index) {
   queue(async () => adopt(await invoke("remove_row", { index })));
 }
 
-function addRow() {
-  queue(async () => adopt(await invoke("add_row")));
-}
-
-async function fireOnce() {
-  const target = rows.find((row) => row.enabled) || rows[0];
-  if (!target) return;
-  try {
-    await invoke("test_fire", { key: target.key });
-    flash(`${S.testFire}: ${target.key}`);
-  } catch (error) {
-    flash(String(error));
-  }
-}
+/* --------------------------------------------------------------- status ----- */
 
 function applyStatus(status) {
   const armed = $("armed");
@@ -153,30 +298,28 @@ function applyStatus(status) {
   warn.textContent = S.captureWarning;
   warn.classList.toggle("hidden", status.capture_ok !== false);
 
-  // Sync once, so the backend and the checkboxes agree without fighting clicks.
+  if (status.hotkeys && !capture) {
+    // Only rebuild when the binds actually changed: replacing the buttons every
+    // status tick would destroy the one under the user's cursor mid-click.
+    const unchanged = HOTKEY_SLOTS.every((slot) => hotkeys[slot] === status.hotkeys[slot]);
+    if (!unchanged) {
+      hotkeys = status.hotkeys;
+      renderHotkeys();
+    }
+  }
+
   if (!optionsSynced) {
     $("gate").checked = status.gate;
-    $("scancode").checked = status.scancode;
     optionsSynced = true;
   }
 }
 
 async function pushOptions() {
   try {
-    await invoke("set_options", {
-      gate: $("gate").checked,
-      scancode: $("scancode").checked
-    });
+    await invoke("set_options", { gate: $("gate").checked });
   } catch (error) {
     flash(String(error));
   }
-}
-
-function showFailure(message) {
-  const warn = $("warn");
-  warn.textContent = `UI error: ${message}`;
-  warn.classList.remove("hidden");
-  flash(String(message));
 }
 
 async function readState() {
@@ -189,15 +332,14 @@ async function readState() {
   return status;
 }
 
+/* ------------------------------------------------------------------ boot ---- */
+
 async function boot() {
   applyStrings();
 
-  $("add").addEventListener("click", addRow);
-  $("fire").addEventListener("click", fireOnce);
   $("start").addEventListener("click", () => invoke("arm").catch((e) => flash(String(e))));
   $("stop").addEventListener("click", () => invoke("disarm").catch((e) => flash(String(e))));
   $("gate").addEventListener("change", pushOptions);
-  $("scancode").addEventListener("change", pushOptions);
 
   $("save").addEventListener("click", async () => {
     try {
@@ -221,6 +363,13 @@ async function boot() {
     })
   );
 
+  // Capture phase, so the press is taken before anything else reacts to it.
+  window.addEventListener("keydown", onCaptureInput, true);
+  window.addEventListener("mousedown", onCaptureInput, true);
+  window.addEventListener("auxclick", (event) => {
+    if (capture) event.preventDefault();
+  }, true);
+
   try {
     if (tauriEvent && typeof tauriEvent.listen === "function") {
       await tauriEvent.listen("status", (event) => applyStatus(event.payload));
@@ -231,9 +380,9 @@ async function boot() {
     setInterval(() => readState().catch(() => {}), 500);
   }
 
-  const first = await readState();
+  await readState();
+  renderHotkeys(); // first paint; applyStatus only rebuilds when a bind changes
   flash(S.hint);
-  return first;
 }
 
 boot().catch((error) => showFailure(error && error.message ? error.message : error));
