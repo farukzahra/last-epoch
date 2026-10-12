@@ -1,0 +1,227 @@
+{
+  "version": 1,
+  "skills": {
+    "ask-before-architecture": {
+      "source": "farukzahra/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ask-before-architecture/SKILL.md",
+      "computedHash": "639c5ec8415032eaac1722e19b11dfbc426b516cae0b38378c3316bb867f9248"
+    },
+    "automate-before-manual": {
+      "source": "farukzahra/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/automate-before-manual/SKILL.md",
+      "computedHash": "5667493257e61810743da5c16336159e179210176b6a97ee6a1e77c72fb594e8"
+    },
+    "brainstorming": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/brainstorming/SKILL.md",
+      "computedHash": "9c462616182917fb389d7d630c59000cff31ed18081baaa644ff148d4c967390"
+    },
+    "caveman-commit": {
+      "source": "farukzahra/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/caveman-commit/SKILL.md",
+      "computedHash": "f028652defd5fdeddcce2994083cb1a7b201ee827bba8e2495546ee159fca3de"
+    },
+    "diagnosing-superpowers": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/diagnosing-superpowers/SKILL.md",
+      "computedHash": "0f33f20feb5340f7be932581880325725b0d2894e15193bffeab53ad474c3267"
+    },
+    "diagrams-mermaid": {
+      "source": "farukzahra/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/diagrams-mermaid/SKILL.md",
+      "computedHash": "e8c2b5d132eee066c8412fe3a244f5dff626a03d64153e4b5283a2ef85cfb8fa"
+    },
+    "dispatching-parallel-agents": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/dispatching-parallel-agents/SKILL.md",
+      "computedHash": "b011107f17188e0b2898bb1856b5bac8b49537cc86e737c82126558a235bd62a"
+    },
+    "dont-be-lazy": {
+      "source": "farukzahra/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/dont-be-lazy/SKILL.md",
+      "computedHash": "b0feb69594448cb2561e20ce1c43ded74b7d85d08836361bbb28ea71c1890c43"
+    },
+    "dont-forget": {
+      "source": "farukzahra/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/dont-forget/SKILL.md",
+      "computedHash": "d609d1d25d12a9a5d895c7fbaf8a45871488d3e505c523cd720dde75ffa982e8"
+    },
+    "executing-plans": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/executing-plans/SKILL.md",
+      "computedHash": "cbe0f5a870ccd1cfa5c0eb374f1b11a2822ecfbf030e27fe285524ce992c42e8"
+    },
+    "find-job": {
+      "source": "farukzahra/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/find-job/SKILL.md",
+      "computedHash": "f06df7d896c06915b1a49b28e50793a5ef67eea1c59216ff1d5cd4363284774e"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "computedHash": "b146008599c31057cef1c145774cea5d5afb30e8f43fa802e47a4b461419aaaf"
+    },
+    "finish-with-dev-server": {
+      "source": "farukzahra/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/finish-with-dev-server/SKILL.md",
+      "computedHash": "7ffc870d76d2636813c5697233a1a886e32fa5092b2e7c1a7fe34610a24ac275"
+    },
+    "finishing-a-development-branch": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/finishing-a-development-branch/SKILL.md",
+      "computedHash": "4f571e7befb8b0946d9d7770232c818812412e9ab1dfb811f847edfba1fc6275"
+    },
+    "google-calendar-mcp": {
+      "source": "farukzahra/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/google-calendar-mcp/SKILL.md",
+      "computedHash": "62e361b364353d1ed8444ad9cb36c629d99021ac4181e76bad7f9e3555a00856"
+    },
+    "handoff": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/productivity/handoff/SKILL.md",
+      "computedHash": "00e2d31992d62490083ed2fa2fc2a4418362f765875a59e7a3dc52836f826ab2"
+    },
+    "init-fmz": {
+      "source": "farukzahra/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/init-fmz/SKILL.md",
+      "computedHash": "d011eea55240f10e86bad9ece7246e3bbf80c9ead3394a33b785cf295b41fd51"
+    },
+    "instagram-chrome-post": {
+      "source": "farukzahra/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/instagram-chrome-post/SKILL.md",
+      "computedHash": "6082c4399bb120cfaf64d5b3a14eec3b1d9f54e070178caaeaf8f4d84834ede9"
+    },
+    "project-init": {
+      "source": "farukzahra/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/project-init/SKILL.md",
+      "computedHash": "a2c2a24ff6dc05293c850cd092f18a1b1c251df46c9f7d6ef0ad260addfd4472"
+    },
+    "rea-changelog-update": {
+      "source": "morluto/rea",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/rea-changelog-update/SKILL.md",
+      "computedHash": "1f5388dc00bc6b06d039ca8f842bde2594bb6112a77cb1a96c8dbc31fb488983"
+    },
+    "rea-tool-design": {
+      "source": "morluto/rea",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/rea-tool-design/SKILL.md",
+      "computedHash": "b1dd54035bbd31a55196dba0ce78a55c9a548e7ac395ad3771f9fe8784a6fc6a"
+    },
+    "recap": {
+      "source": "farukzahra/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/recap/SKILL.md",
+      "computedHash": "d0e12d72b0c70473fe785d177f729f1ab098d821d6b49ef619f8da0c182cdcd2"
+    },
+    "receiving-code-review": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/receiving-code-review/SKILL.md",
+      "computedHash": "59361179fc9225173e0c145ffd9bafbf9fdbf8b43ce3dc308497a0b4f83a6063"
+    },
+    "requesting-code-review": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/requesting-code-review/SKILL.md",
+      "computedHash": "b095ac8c980339436b41de9989328f3f288f2e2a70452df28452bbeb6531d604"
+    },
+    "reverse-engineer-anything": {
+      "source": "morluto/rea",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/reverse-engineer-anything/SKILL.md",
+      "computedHash": "fa25e44f2ab449050ede2dd07d7bb3d7c82f179343f9f3df3f7486dea435744a"
+    },
+    "semantic-version": {
+      "source": "farukzahra/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/semantic-version/SKILL.md",
+      "computedHash": "0d736dc574837851509a5c8438bd5441f251632b0101af45c437e2d0cc6a97f5"
+    },
+    "skills-sh-maintainer": {
+      "source": "farukzahra/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/skills-sh-maintainer/SKILL.md",
+      "computedHash": "6731442f4b94b89bfaf1cfd8939302c8b1b5d66c71e862d2ad95239b50c09a16"
+    },
+    "subagent-driven-development": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/subagent-driven-development/SKILL.md",
+      "computedHash": "c805475cfdd5e8c27d0040c4f0b7fd29bc41c96591587df41b12f7d6f6eadad7"
+    },
+    "systematic-debugging": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/systematic-debugging/SKILL.md",
+      "computedHash": "276fb0aadb002ab930cc2a56de89e16995a2e3e70b33587652bf0a5fb123148d"
+    },
+    "test-driven-development": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/test-driven-development/SKILL.md",
+      "computedHash": "3cfe4ebb6fa7288f668d87880d279c8e48f7a92b63415e296857060f5ce22e05"
+    },
+    "ui-change-e2e": {
+      "source": "farukzahra/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ui-change-e2e/SKILL.md",
+      "computedHash": "1fb18fb4979ad68f00fe39c158ee71854dfd933528ebe8b89a6d82a633f6ab0d"
+    },
+    "using-git-worktrees": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/using-git-worktrees/SKILL.md",
+      "computedHash": "48c8a1040e378e0cb7208107294e3afa9067b9370c3f33b49a443eb6b7528b0d"
+    },
+    "using-superpowers": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/using-superpowers/SKILL.md",
+      "computedHash": "ef8670c2a2d8e2f6ed52d6f3219759903300ca13afc5ec2e25826a735112562b"
+    },
+    "validate-before-share": {
+      "source": "farukzahra/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/validate-before-share/SKILL.md",
+      "computedHash": "9bf78f4e6836d04eca5b593a659bc8cb603352cdeba24b45421a690d1358299e"
+    },
+    "verification-before-completion": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/verification-before-completion/SKILL.md",
+      "computedHash": "b529822bdac4b197b180fe12225cff86b930b65910435103c10622df7f041651"
+    },
+    "writing-plans": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/writing-plans/SKILL.md",
+      "computedHash": "c2647b5bf067be353a893e5a39a632cbbeb7ad81e61fa5ae227ece5490029073"
+    },
+    "writing-skills": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/writing-skills/SKILL.md",
+      "computedHash": "7a13d9b3fd40e886c97f4b467ccc0f5edce03d606ea0dedc72d568d6e813e206"
+    }
+  }
+}

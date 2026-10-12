@@ -1,0 +1,19 @@
+# Build output
+/target
+/dist
+node_modules/
+
+# Agent/tooling state. The skills CLI creates junctions and full skill copies
+# here; committing them stages every file twice and bloats the repo.
+.agents/
+.cursor/
+.claude/
+.opencode/
+
+# Local analysis artifacts. The screenshots contain the desktop and the game,
+# so they stay local; the text dumps are committed as evidence.
+research/*.png
+
+# Local app state
+spike/state.json
+spike/profile.json

@@ -1,0 +1,500 @@
+﻿python : C:\repo\last-epoch\research\pe_report.py:25: DeprecationWarning: datetime.datetime.utcfromtimestamp() is 
+deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: 
+datetime.datetime.fromtimestamp(timestamp, datetime.UTC).
+No linha:1 caractere:1
++ python "C:\repo\last-epoch\research\pe_report.py" "C:\Program Files\D ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\repo\last-ep... datetime.UTC).:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  datetime.datetime.utcfromtimestamp(pe.FILE_HEADER.TimeDateStamp),
+=== HEADERS ===
+path           : C:\Program Files\D4Turbo\D4Turbo.exe
+machine        : 0x8664 x86-64
+timestamp      : 2026-09-24 11:40:31 (epoch 1790250031 )
+characteristics: 0x22 EXE
+subsystem      : 2 GUI
+entrypoint RVA : 0x8b19ac
+image base     : 0x140000000
+
+=== SECTIONS ===
+.text      vsize=9276192    rawsize=9276416    rawptr=0x400        entropy=6.166 flags=0x60000020
+.rdata     vsize=3370208    rawsize=3370496    rawptr=0x8d9000     entropy=5.878 flags=0x40000040
+.data      vsize=23096      rawsize=12288      rawptr=0xc0fe00     entropy=2.309 flags=0xc0000040
+.pdata     vsize=518652     rawsize=518656     rawptr=0xc12e00     entropy=6.564 flags=0x40000040
+.rsrc      vsize=39296      rawsize=39424      rawptr=0xc91800     entropy=7.863 flags=0x40000040
+.reloc     vsize=31208      rawsize=31232      rawptr=0xc9b200     entropy=5.473 flags=0x42000040
+
+=== DATADIR (non-empty) ===
+IMPORT         rva=0xc0dda4     size=480
+RESOURCE       rva=0xc96000     size=39296
+EXCEPTION      rva=0xc17000     size=518652
+BASERELOC      rva=0xca0000     size=31208
+DEBUG          rva=0x9ff6d0     size=84
+TLS            rva=0x9ff900     size=40
+LOAD_CONFIG    rva=0x9ff590     size=320
+IAT            rva=0x8da000     size=3368
+
+=== IMPORTS ===
+dll count: 23
+
+-- kernel32.dll (121)
+    AcquireSRWLockExclusive
+    AddVectoredExceptionHandler
+    CancelIoEx
+    CloseHandle
+    CompareStringOrdinal
+    CopyFileExW
+    CreateDirectoryW
+    CreateFileW
+    CreateIoCompletionPort
+    CreateMutexA
+    CreateMutexW
+    CreateProcessW
+    CreateThread
+    CreateWaitableTimerExW
+    DeleteCriticalSection
+    DeleteFileW
+    DeviceIoControl
+    DuplicateHandle
+    EncodePointer
+    ExitProcess
+    FindClose
+    FindFirstFileExW
+    FindNextFileW
+    FlsAlloc
+    FlsFree
+    FlsSetValue
+    FormatMessageW
+    FreeEnvironmentStringsW
+    FreeLibrary
+    GetCommandLineW
+    GetConsoleMode
+    GetConsoleOutputCP
+    GetCurrentDirectoryW
+    GetCurrentProcess
+    GetCurrentProcessId
+    GetCurrentThread
+    GetCurrentThreadId
+    GetEnvironmentStringsW
+    GetEnvironmentVariableW
+    GetFileAttributesW
+    GetFileInformationByHandle
+    GetFileInformationByHandleEx
+    GetFinalPathNameByHandleW
+    GetFullPathNameW
+    GetLastError
+    GetModuleFileNameW
+    GetModuleHandleA
+    GetModuleHandleExW
+    GetModuleHandleW
+    GetOverlappedResult
+    GetProcAddress
+    GetProcessHeap
+    GetQueuedCompletionStatusEx
+    GetStdHandle
+    GetSystemDirectoryW
+    GetSystemInfo
+    GetSystemTimeAsFileTime
+    GetSystemTimePreciseAsFileTime
+    GetTempPathW
+    GetUserDefaultUILanguage
+    GetWindowsDirectoryW
+    HeapAlloc
+    HeapFree
+    HeapReAlloc
+    InitializeCriticalSectionAndSpinCount
+    InitializeSListHead
+    IsDebuggerPresent
+    IsProcessorFeaturePresent
+    IsThreadAFiber
+    LCIDToLocaleName
+    LoadLibraryA
+    LoadLibraryExA
+    LoadLibraryExW
+    LoadLibraryW
+    MoveFileExW
+    MultiByteToWideChar
+    OutputDebugStringA
+    OutputDebugStringW
+    PostQueuedCompletionStatus
+    QueryPerformanceCounter
+    QueryPerformanceFrequency
+    RaiseException
+    ReadFile
+    ReadFileEx
+    ReleaseMutex
+    ReleaseSRWLockExclusive
+    RemoveDirectoryW
+    RtlCaptureContext
+    RtlLookupFunctionEntry
+    RtlPcToFileHeader
+    RtlUnwindEx
+    RtlVirtualUnwind
+    SetEnvironmentVariableW
+    SetFileCompletionNotificationModes
+    SetFileInformationByHandle
+    SetFilePointerEx
+    SetFileTime
+    SetHandleInformation
+    SetLastError
+    SetNamedPipeHandleState
+    SetThreadStackGuarantee
+    SetUnhandledExceptionFilter
+    SetWaitableTimer
+    Sleep
+    SleepConditionVariableSRW
+    SleepEx
+    SwitchToThread
+    TerminateProcess
+    TlsAlloc
+    TlsFree
+    TlsGetValue
+    TlsSetValue
+    UnhandledExceptionFilter
+    WaitForSingleObject
+    WaitForSingleObjectEx
+    WakeAllConditionVariable
+    WideCharToMultiByte
+    WriteConsoleW
+    WriteFile
+    WriteFileEx
+    lstrlenW
+
+-- advapi32.dll (11)
+    EventRegister
+    EventSetInformation
+    EventUnregister
+    EventWriteTransfer
+    RegCloseKey
+    RegCreateKeyExW
+    RegCreateKeyTransactedW
+    RegGetValueW
+    RegOpenKeyExW
+    RegOpenKeyTransactedW
+    RegQueryValueExW
+
+-- oleaut32.dll (4)
+    GetErrorInfo
+    SetErrorInfo
+    SysFreeString
+    SysStringLen
+
+-- bcryptprimitives.dll (1)
+    ProcessPrng
+
+-- ntdll.dll (9)
+    NtCancelIoFileEx
+    NtCreateFile
+    NtCreateNamedPipeFile
+    NtDeviceIoControlFile
+    NtOpenFile
+    NtReadFile
+    NtWriteFile
+    RtlGetVersion
+    RtlNtStatusToDosError
+
+-- comctl32.dll (4)
+    DefSubclassProc
+    RemoveWindowSubclass
+    SetWindowSubclass
+    TaskDialogIndirect
+
+-- user32.dll (126)
+    AdjustWindowRect
+    AdjustWindowRectEx
+    AppendMenuW
+    ChangeDisplaySettingsExW
+    CheckMenuItem
+    ClientToScreen
+    ClipCursor
+    CloseTouchInputHandle
+    CreateAcceleratorTableW
+    CreateIcon
+    CreateMenu
+    CreatePopupMenu
+    CreateWindowExW
+    DefWindowProcW
+    DestroyAcceleratorTable
+    DestroyIcon
+    DestroyMenu
+    DestroyWindow
+    DispatchMessageA
+    DispatchMessageW
+    DrawIconEx
+    DrawMenuBar
+    DrawTextW
+    EnableMenuItem
+    EnableWindow
+    EnumChildWindows
+    EnumDisplayMonitors
+    FillRect
+    FindWindowExW
+    FindWindowW
+    FlashWindowEx
+    GetActiveWindow
+    GetAsyncKeyState
+    GetClientRect
+    GetClipCursor
+    GetCursorPos
+    GetDC
+    GetForegroundWindow
+    GetKeyState
+    GetKeyboardLayout
+    GetKeyboardState
+    GetMenu
+    GetMenuBarInfo
+    GetMenuItemInfoW
+    GetMessageA
+    GetMessageW
+    GetMonitorInfoW
+    GetParent
+    GetRawInputData
+    GetSystemMenu
+    GetSystemMetrics
+    GetTouchInputInfo
+    GetUpdateRect
+    GetWindow
+    GetWindowDC
+    GetWindowLongPtrW
+    GetWindowLongW
+    GetWindowPlacement
+    GetWindowRect
+    GetWindowTextLengthW
+    GetWindowTextW
+    GetWindowThreadProcessId
+    InsertMenuW
+    InvalidateRect
+    InvalidateRgn
+    IsIconic
+    IsProcessDPIAware
+    IsWindow
+    IsWindowEnabled
+    IsWindowVisible
+    LoadCursorW
+    MapVirtualKeyExW
+    MapVirtualKeyW
+    MapWindowPoints
+    MonitorFromPoint
+    MonitorFromRect
+    MonitorFromWindow
+    MsgWaitForMultipleObjectsEx
+    OffsetRect
+    PeekMessageW
+    PostMessageW
+    PostQuitMessage
+    PostThreadMessageW
+    RedrawWindow
+    RegisterClassExW
+    RegisterClassW
+    RegisterHotKey
+    RegisterRawInputDevices
+    RegisterTouchWindow
+    RegisterWindowMessageA
+    ReleaseCapture
+    ReleaseDC
+    RemoveMenu
+    ScreenToClient
+    SendInput
+    SendMessageW
+    SetCapture
+    SetCursor
+    SetCursorPos
+    SetFocus
+    SetForegroundWindow
+    SetMenu
+    SetMenuItemInfoW
+    SetParent
+    SetPropW
+    SetWindowDisplayAffinity
+    SetWindowLongPtrW
+    SetWindowLongW
+    SetWindowPlacement
+    SetWindowPos
+    SetWindowRgn
+    SetWindowTextW
+    ShowCursor
+    ShowWindow
+    SystemParametersInfoA
+    SystemParametersInfoW
+    ToUnicodeEx
+    TrackMouseEvent
+    TrackPopupMenu
+    TranslateAcceleratorW
+    TranslateMessage
+    UnregisterHotKey
+    UpdateWindow
+    ValidateRect
+    VkKeyScanExW
+    VkKeyScanW
+
+-- ole32.dll (10)
+    CoCreateFreeThreadedMarshaler
+    CoCreateInstance
+    CoInitialize
+    CoInitializeEx
+    CoTaskMemAlloc
+    CoTaskMemFree
+    CoUninitialize
+    OleInitialize
+    RegisterDragDrop
+    RevokeDragDrop
+
+-- gdi32.dll (12)
+    BitBlt
+    CombineRgn
+    CreateCompatibleDC
+    CreateDIBSection
+    CreateRectRgn
+    CreateSolidBrush
+    DeleteDC
+    DeleteObject
+    GetDeviceCaps
+    SelectObject
+    SetBkMode
+    SetTextColor
+
+-- api-ms-win-core-synch-l1-2-0.dll (3)
+    WaitOnAddress
+    WakeByAddressAll
+    WakeByAddressSingle
+
+-- dwmapi.dll (3)
+    DwmEnableBlurBehindWindow
+    DwmGetWindowAttribute
+    DwmSetWindowAttribute
+
+-- shlwapi.dll (1)
+    SHCreateMemStream
+
+-- shell32.dll (10)
+    DragFinish
+    DragQueryFileW
+    ILCreateFromPathW
+    ILFree
+    SHAppBarMessage
+    SHCreateItemFromParsingName
+    SHGetKnownFolderPath
+    SHOpenFolderAndSelectItems
+    ShellExecuteExW
+    ShellExecuteW
+
+-- ws2_32.dll (19)
+    WSACleanup
+    WSAGetLastError
+    WSAIoctl
+    WSASend
+    WSASocketW
+    WSAStartup
+    bind
+    closesocket
+    connect
+    freeaddrinfo
+    getaddrinfo
+    getpeername
+    getsockname
+    getsockopt
+    ioctlsocket
+    recv
+    send
+    setsockopt
+    shutdown
+
+-- secur32.dll (10)
+    AcceptSecurityContext
+    AcquireCredentialsHandleA
+    ApplyControlToken
+    DecryptMessage
+    DeleteSecurityContext
+    EncryptMessage
+    FreeContextBuffer
+    FreeCredentialsHandle
+    InitializeSecurityContextW
+    QueryContextAttributesW
+
+-- crypt32.dll (11)
+    CertAddCertificateContextToStore
+    CertCloseStore
+    CertDuplicateCertificateChain
+    CertDuplicateCertificateContext
+    CertDuplicateStore
+    CertEnumCertificatesInStore
+    CertFreeCertificateChain
+    CertFreeCertificateContext
+    CertGetCertificateChain
+    CertOpenStore
+    CertVerifyCertificateChainPolicy
+
+-- api-ms-win-crt-math-l1-1-0.dll (6)
+    __setusermatherr
+    floor
+    pow
+    round
+    roundf
+    trunc
+
+-- api-ms-win-crt-string-l1-1-0.dll (7)
+    _wcsicmp
+    strcmp
+    strcpy_s
+    strlen
+    wcscmp
+    wcslen
+    wcsncmp
+
+-- api-ms-win-crt-convert-l1-1-0.dll (3)
+    _ultow_s
+    _wtoi
+    wcstol
+
+-- api-ms-win-crt-runtime-l1-1-0.dll (19)
+    __p___argc
+    __p___argv
+    _c_exit
+    _cexit
+    _configure_narrow_argv
+    _crt_atexit
+    _exit
+    _get_initial_narrow_environment
+    _initialize_narrow_environment
+    _initialize_onexit_table
+    _initterm
+    _initterm_e
+    _register_onexit_function
+    _register_thread_local_exe_atexit_callback
+    _seh_filter_exe
+    _set_app_type
+    abort
+    exit
+    terminate
+
+-- api-ms-win-crt-stdio-l1-1-0.dll (2)
+    __p__commode
+    _set_fmode
+
+-- api-ms-win-crt-locale-l1-1-0.dll (1)
+    _configthreadlocale
+
+-- api-ms-win-crt-heap-l1-1-0.dll (5)
+    _callnewh
+    _set_new_mode
+    calloc
+    free
+    malloc
+
+=== DEBUG ===
+    D4Turbo.pdb
+   (debug entry type 12 )
+   (debug entry type 13 )
+
+=== OVERLAY ===
+size of image (file): 13249536
+last section end    : 13249536
+overlay bytes       : 0
+
+=== RESOURCES (types) ===
+    3 3
+    14 14
+    16 16
+    24 24
+
