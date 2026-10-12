@@ -22,6 +22,8 @@ Created by `/init` (project-init) on 2026-10-12.
 | Delivery recap | `/recap` + `recap` | HTML “pedido vs entregue” in `docs/session-recaps/` |
 | Next-agent handoff | `/handoff` + `handoff` | Compact doc in OS temp dir for a fresh session |
 
+**Language: always answer in Portuguese.** The user writes Portuguese. Never answer in Chinese, and do not switch language unless the user does.
+
 **Gates:** no feature without approved spec; no "done" without verification; version bump only on `/commit-push`; obligations that must not be forgotten → automate (`dont-forget`).
 
 **Always launch the fresh build when a task ends.** After any change, kill every running `le-turbo` process and start the binary you just built (`target\release\le-turbo.exe`), so the window on screen is never an older build than the code. The UI is embedded at compile time: a stale window keeps the old buttons and shows bugs that are already fixed. Say which build is now open, with its path and timestamp.
