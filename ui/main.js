@@ -76,9 +76,11 @@ function nameFromEvent(event) {
 function onCaptureInput(event) {
   if (!capture) return;
 
-  // Let clicks on the capture controls through, or the button that confirms the
-  // bind would be captured as a bind itself and could never be pressed.
-  if (event.target && event.target.closest && event.target.closest(".hotkey")) {
+  // Never swallow a click on one of our own buttons. That keeps the confirm and
+  // cancel buttons usable, and — the bug this replaced — keeps START and STOP
+  // alive while a capture is open, instead of turning every click into a bind.
+  // Anything else, including the hotkey row itself, still registers a bind.
+  if (event.target && event.target.closest && event.target.closest("button")) {
     return;
   }
 

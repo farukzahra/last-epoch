@@ -31,7 +31,7 @@ export const S = {
   change: "Change",
   useThis: "Use this",
   cancel: "Cancel",
-  capturePrompt: "Press a key or a mouse button…",
+  capturePrompt: "Press a key or a mouse button — Escape cancels",
   captureDetected: "Detected — confirm it",
   captureNotSupported: "That key cannot be used. Try a letter, a digit, F1-F24, Space, Tab or a mouse button.",
   captureEscape: "Cancelled",
