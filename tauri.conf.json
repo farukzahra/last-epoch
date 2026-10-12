@@ -1,0 +1,25 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "LE Turbo",
+  "version": "0.1.0",
+  "identifier": "com.faruk.leturbo",
+  "build": {
+    "frontendDist": "ui"
+  },
+  "bundle": {
+    "icon": [
+      "icons/icon.ico"
+    ]
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "LE Turbo",
+        "width": 1020,
+        "height": 720,
+        "resizable": true
+      }
+    ]
+  }
+}
