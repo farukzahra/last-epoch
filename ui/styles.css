@@ -436,3 +436,9 @@ kbd {
   font-size: 11px;
   margin-left: auto;
 }
+
+.version {
+  color: #55635a;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}

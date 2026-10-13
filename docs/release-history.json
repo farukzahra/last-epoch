@@ -1,0 +1,27 @@
+{
+  "currentVersion": "0.3.0",
+  "updatedAt": "2026-10-12T21:12:00.000Z",
+  "entries": [
+    {
+      "version": "0.3.0",
+      "date": "2026-10-12",
+      "title": "Hotkey capture that cannot be hidden, and an explicit Save",
+      "summary": "Rebinding a hotkey now reads the key at system level and also offers the full key list, so a remapping mouse driver can no longer hide a press. The per-row delete button is gone, so the row list is fixed and Reset restores it. Saving is explicit again: edits live in the session until you press Save, and Load restores the last one. The running version is shown discreetly in the footer.",
+      "type": "feat"
+    },
+    {
+      "version": "0.2.0",
+      "date": "2026-10-12",
+      "title": "One key to start and stop, and rebindable hotkeys",
+      "summary": "A single key now starts and stops the presser instead of separate arm and disarm keys, and both it and the quit key can be rebound by pressing Change. The Add row, Fire once and scancode controls were removed.",
+      "type": "feat"
+    },
+    {
+      "version": "0.1.0",
+      "date": "2026-10-12",
+      "title": "First release: presses your keys on a clock",
+      "summary": "One row per input with its own interval, sections for tap or hold, a focus gate so it never types into another window, cursor checks so a mouse row cannot click outside the game, and a release guarantee so a held button can never outlive the app. Shipped as a per-user installer with a desktop shortcut and as a portable exe.",
+      "type": "feat"
+    }
+  ]
+}

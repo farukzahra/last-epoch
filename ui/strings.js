@@ -1,7 +1,6 @@
 export const S = {
   brandSmall: "LAST EPOCH",
   brandBig: "TURBO",
-  version: "v0.2",
 
   rowsHeading: "Skills & Clicks",
   colOn: "ON",
