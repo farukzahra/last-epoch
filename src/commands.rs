@@ -143,23 +143,6 @@ pub fn set_row_enabled(
 }
 
 #[tauri::command]
-pub fn remove_row(state: State<'_, AppState>, index: usize) -> Result<Vec<Row>, String> {
-    let rows = {
-        let mut profile = lock_profile(&state);
-        if profile.rows.len() <= 1 {
-            return Err("a profile must keep at least one row".into());
-        }
-        if index >= profile.rows.len() {
-            return Err(format!("row {index} does not exist"));
-        }
-        profile.rows.remove(index);
-        profile.normalize();
-        profile.rows.clone()
-    };
-    Ok(push_rows(&state, rows))
-}
-
-#[tauri::command]
 pub fn arm(state: State<'_, AppState>) {
     lock_engine(&state).arm();
 }

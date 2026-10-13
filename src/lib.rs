@@ -24,7 +24,6 @@ pub fn run() {
             commands::get_state,
             commands::set_rows,
             commands::set_row_enabled,
-            commands::remove_row,
             commands::arm,
             commands::disarm,
             commands::set_options,

@@ -174,7 +174,7 @@ h3 {
 .grid-head,
 .row {
   display: grid;
-  grid-template-columns: 64px 150px 130px 1fr 34px;
+  grid-template-columns: 64px 150px 130px 1fr;
   align-items: center;
   gap: 10px;
 }

@@ -11,7 +11,6 @@ export const S = {
 
   actionPress: "Press",
   actionHold: "Hold",
-  removeRow: "Remove row",
 
   save: "Save",
   load: "Load",

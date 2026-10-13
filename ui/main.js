@@ -193,13 +193,7 @@ function renderRows() {
       commit();
     });
 
-    const remove = document.createElement("button");
-    remove.className = "remove";
-    remove.textContent = "\u00d7";
-    remove.title = S.removeRow;
-    remove.addEventListener("click", () => removeRow(index));
-
-    line.append(toggle, key, action, ms, remove);
+    line.append(toggle, key, action, ms);
     host.append(line);
   });
 }
@@ -278,10 +272,6 @@ function commit() {
 function toggleRow(index) {
   const enabled = !rows[index].enabled;
   queue(async () => adopt(await invoke("set_row_enabled", { index, enabled })));
-}
-
-function removeRow(index) {
-  queue(async () => adopt(await invoke("remove_row", { index })));
 }
 
 /* --------------------------------------------------------------- status ----- */
