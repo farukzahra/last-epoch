@@ -290,6 +290,20 @@ select option {
 .hotkey.capturing {
   border-color: var(--teal);
   background: #16241f;
+  flex-wrap: wrap;
+}
+
+.hotkey.capturing .hotkey-desc {
+  flex: 1 1 100%;
+  color: var(--teal);
+  font-size: 10px;
+}
+
+.tiny-select {
+  width: auto;
+  max-width: 108px;
+  font-size: 10px;
+  padding: 2px 4px;
 }
 
 .hotkey-desc {

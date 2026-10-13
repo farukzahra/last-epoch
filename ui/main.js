@@ -76,11 +76,10 @@ function nameFromEvent(event) {
 function onCaptureInput(event) {
   if (!capture) return;
 
-  // Never swallow a click on one of our own buttons. That keeps the confirm and
-  // cancel buttons usable, and — the bug this replaced — keeps START and STOP
-  // alive while a capture is open, instead of turning every click into a bind.
-  // Anything else, including the hotkey row itself, still registers a bind.
-  if (event.target && event.target.closest && event.target.closest("button")) {
+  // Never swallow a click on one of our own buttons or on the key list. That
+  // keeps confirm, cancel and the list usable, and — the bug this replaced —
+  // keeps START and STOP alive while a capture is open.
+  if (event.target && event.target.closest && event.target.closest("button, select")) {
     return;
   }
 
@@ -230,6 +229,27 @@ function renderHotkeys() {
       change.addEventListener("click", () => startCapture(slot));
       line.append(change);
     } else {
+      // Sensing covers a normal press, but a remapping mouse driver can still hide
+      // one, so the list is always there as a manual override.
+      const pick = document.createElement("select");
+      pick.className = "tiny-select";
+      const blank = document.createElement("option");
+      blank.value = "";
+      blank.textContent = "…";
+      blank.selected = !capture.detected;
+      pick.append(blank);
+      for (const choice of KEY_CHOICES) {
+        const option = document.createElement("option");
+        option.value = choice;
+        option.textContent = choice;
+        if (choice === capture.detected) option.selected = true;
+        pick.append(option);
+      }
+      pick.addEventListener("change", () => {
+        capture.detected = pick.value || null;
+        renderHotkeys();
+      });
+
       const use = document.createElement("button");
       use.className = "tiny primary";
       use.textContent = S.useThis;
@@ -241,7 +261,7 @@ function renderHotkeys() {
       cancel.textContent = S.cancel;
       cancel.addEventListener("click", () => stopCapture(null));
 
-      line.append(use, cancel);
+      line.append(pick, use, cancel);
     }
 
     host.append(line);

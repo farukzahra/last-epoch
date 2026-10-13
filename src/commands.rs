@@ -194,15 +194,18 @@ pub fn set_capture_mode(state: State<'_, AppState>, active: bool) {
 pub fn save_profile(state: State<'_, AppState>) -> Result<String, String> {
     let profile = lock_profile(&state);
     profile
-        .save(&state.paths.profile)
-        .map_err(|e| format!("could not save profile: {e:?}"))?;
-    Ok(state.paths.profile.display().to_string())
+        .save(&state.paths.saved)
+        .map_err(|e| format!("could not save: {e:?}"))?;
+    Ok(state.paths.saved.display().to_string())
 }
 
 #[tauri::command]
 pub fn load_profile(state: State<'_, AppState>) -> Result<Vec<Row>, String> {
-    let loaded = Profile::load(&state.paths.profile)
-        .map_err(|e| format!("could not load profile: {e:?}"))?;
+    if !state.paths.saved.exists() {
+        return Err("nothing saved yet — press Save first".into());
+    }
+    let loaded = Profile::load(&state.paths.saved)
+        .map_err(|e| format!("could not load: {e:?}"))?;
     {
         let config = state.config.lock().unwrap_or_else(|e| e.into_inner());
         validate_rows(&loaded.rows, &config.hotkeys)?;

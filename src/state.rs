@@ -12,6 +12,10 @@ use crate::win::sender::WinRawSender;
 pub struct Paths {
     pub profile: PathBuf,
     pub config: PathBuf,
+    /// An explicit snapshot: Save writes it, Load restores it. The working
+    /// `profile` file is rewritten on every edit (autosave), so without a
+    /// separate slot Load could only ever restore what is already on screen.
+    pub saved: PathBuf,
 }
 
 impl Paths {
@@ -23,6 +27,7 @@ impl Paths {
         Paths {
             profile: dir.join("profile.json"),
             config: dir.join("config.json"),
+            saved: dir.join("profile.saved.json"),
         }
     }
 }
