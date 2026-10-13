@@ -50,6 +50,7 @@ pub fn validate_hotkey(key: &str, hotkeys: &Hotkeys, slot: &str) -> Result<Strin
 
 #[derive(Serialize, Clone)]
 pub struct StateDto {
+    pub version: String,
     pub armed: bool,
     pub presses: u64,
     pub skipped: u64,
@@ -68,6 +69,8 @@ pub fn build_state(state: &AppState) -> StateDto {
     let config = state.config.lock().unwrap_or_else(|e| e.into_inner());
 
     StateDto {
+        // Taken from the crate manifest, so the label cannot drift from the build.
+        version: env!("CARGO_PKG_VERSION").to_string(),
         armed: engine.is_armed(),
         presses: engine.presses(),
         skipped: engine.skipped(),

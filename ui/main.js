@@ -297,6 +297,11 @@ function toggleRow(index) {
 /* --------------------------------------------------------------- status ----- */
 
 function applyStatus(status) {
+  const version = `v${status.version}`;
+  $("version").textContent = version;
+  const badge = document.querySelector(".badge");
+  if (badge) badge.textContent = version;
+
   const armed = $("armed");
   armed.textContent = status.armed ? S.labelArmed : S.labelDisarmed;
   armed.className = status.armed ? "armed on" : "armed off";
@@ -348,19 +353,6 @@ async function readState() {
 
 async function boot() {
   applyStrings();
-
-  // The version comes from the app manifest, so it cannot drift from the build.
-  try {
-    const appApi = window.__TAURI__ && window.__TAURI__.app;
-    if (appApi && typeof appApi.getVersion === "function") {
-      const version = `v${await appApi.getVersion()}`;
-      $("version").textContent = version;
-      const badge = document.querySelector(".badge");
-      if (badge) badge.textContent = version;
-    }
-  } catch (error) {
-    // an empty label beats a wrong one
-  }
 
   $("start").addEventListener("click", () => invoke("arm").catch((e) => flash(String(e))));
   $("stop").addEventListener("click", () => invoke("disarm").catch((e) => flash(String(e))));
