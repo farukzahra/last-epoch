@@ -53,7 +53,7 @@ So this project copies the mechanism, adds the honest safety rails the mechanism
 
 From the [latest release](https://github.com/farukzahra/last-epoch/releases/latest) take either:
 
-**Installer** — `LE.Turbo_0.2.0_x64-setup.exe`. Installs for the current user only, so it never asks for administrator rights. It adds a Start Menu entry, and the finish page offers a **desktop shortcut** (ticked by default). Remove it later from Settings → Apps.
+**Installer** — `LE-Turbo-setup.exe`. Installs for the current user only, so it never asks for administrator rights. It adds a Start Menu entry, and the finish page offers a **desktop shortcut** (ticked by default). Remove it later from Settings → Apps.
 
 **Portable** — `le-turbo.exe`. No install step at all; drop it in a folder and run it. Keep it somewhere writable, because the app creates `profile.json` and `config.json` beside the executable.
 

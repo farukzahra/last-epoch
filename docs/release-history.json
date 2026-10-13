@@ -7,7 +7,8 @@
       "date": "2026-10-12",
       "title": "Hotkey capture that cannot be hidden, and an explicit Save",
       "summary": "Rebinding a hotkey now reads the key at system level and also offers the full key list, so a remapping mouse driver can no longer hide a press. The per-row delete button is gone, so the row list is fixed and Reset restores it. Saving is explicit again: edits live in the session until you press Save, and Load restores the last one. The running version is shown discreetly in the footer.",
-      "type": "feat"
+      "type": "feat",
+      "commit": "58abe9d"
     },
     {
       "version": "0.2.0",

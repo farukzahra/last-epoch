@@ -28,6 +28,8 @@ Created by `/init` (project-init) on 2026-10-12.
 
 **Always launch the fresh build when a task ends.** After any change, kill every running `le-turbo` process and start the binary you just built (`target\release\le-turbo.exe`), so the window on screen is never an older build than the code. The UI is embedded at compile time: a stale window keeps the old buttons and shows bugs that are already fixed. Say which build is now open, with its path and timestamp.
 
+**Every `/commit-push` that ships something publishes the packages.** Run `scripts/publish.ps1`. It reads the version from `Cargo.toml` (so the tag cannot drift), builds the NSIS installer and the portable exe, creates or updates the GitHub release for that version, uploads both under stable names (`LE-Turbo-setup.exe`, `le-turbo.exe`) and verifies the download links. Then, and only then, update the version entry in `docs/release-history.json`. A version on GitHub with no downloadable packages is a broken delivery.
+
 Invoke `/init` to (re)bootstrap skills and folders.
 
 ## Agent automation (mandatory)
