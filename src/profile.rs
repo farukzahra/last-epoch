@@ -151,6 +151,7 @@ impl Profile {
             default_row(3, "4", RowAction::Press),
             default_row(4, "Mouse Left", RowAction::Hold),
             default_row(5, "Mouse Right", RowAction::Press),
+            default_row(6, "Space", RowAction::Press),
         ];
         Profile {
             version: PROFILE_VERSION,
@@ -234,8 +235,8 @@ mod tests {
         let keys: Vec<&str> = p.rows.iter().map(|r| r.key.as_str()).collect();
         assert_eq!(
             keys,
-            vec!["1", "2", "3", "4", "Mouse Left", "Mouse Right"],
-            "skills on 1-4, then the left button for movement, then the right button"
+            vec!["1", "2", "3", "4", "Mouse Left", "Mouse Right", "Space"],
+            "skills on 1-4, then the left button for movement, then the right button, then Space"
         );
         assert!(p.rows.iter().all(|r| !r.enabled), "rows must ship disabled");
         assert!(p.rows[..4].iter().all(|r| r.action == RowAction::Press));

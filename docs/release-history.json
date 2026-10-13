@@ -1,7 +1,14 @@
 {
-  "currentVersion": "0.3.0",
-  "updatedAt": "2026-10-12T21:12:00.000Z",
+  "currentVersion": "0.3.1",
+  "updatedAt": "2026-10-13T00:15:00.000Z",
   "entries": [
+    {
+      "version": "0.3.1",
+      "date": "2026-10-13",
+      "title": "Space row in the default profile",
+      "summary": "The shipped profile now ends with a Space row, so the key is ready to bind without adding anything first. Space was already selectable in the key list. Nothing else about the profile changed, so an existing profile keeps its own rows and only gains the new one when you press Reset.",
+      "type": "fix"
+    },
     {
       "version": "0.3.0",
       "date": "2026-10-12",
