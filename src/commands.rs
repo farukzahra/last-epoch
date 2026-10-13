@@ -94,14 +94,11 @@ fn lock_profile(state: &AppState) -> std::sync::MutexGuard<'_, Profile> {
     state.profile.lock().unwrap_or_else(|e| e.into_inner())
 }
 
-/// Hand rows to the engine and keep the file on disk in step. Every row edit
-/// goes through here, so the profile on disk is always the last one used and a
-/// restart resumes exactly where the user left off.
+/// Hand rows to the engine. Nothing is written to disk here: saving is the
+/// user's explicit action, so an edit they did not save is an edit they can
+/// still walk away from.
 fn push_rows(state: &AppState, rows: Vec<Row>) -> Vec<Row> {
     lock_engine(state).set_rows(rows.clone());
-    if let Err(error) = lock_profile(state).save(&state.paths.profile) {
-        eprintln!("le-turbo: could not save profile: {error:?}");
-    }
     rows
 }
 
@@ -194,17 +191,17 @@ pub fn set_capture_mode(state: State<'_, AppState>, active: bool) {
 pub fn save_profile(state: State<'_, AppState>) -> Result<String, String> {
     let profile = lock_profile(&state);
     profile
-        .save(&state.paths.saved)
+        .save(&state.paths.profile)
         .map_err(|e| format!("could not save: {e:?}"))?;
-    Ok(state.paths.saved.display().to_string())
+    Ok(state.paths.profile.display().to_string())
 }
 
 #[tauri::command]
 pub fn load_profile(state: State<'_, AppState>) -> Result<Vec<Row>, String> {
-    if !state.paths.saved.exists() {
+    if !state.paths.profile.exists() {
         return Err("nothing saved yet — press Save first".into());
     }
-    let loaded = Profile::load(&state.paths.saved)
+    let loaded = Profile::load(&state.paths.profile)
         .map_err(|e| format!("could not load: {e:?}"))?;
     {
         let config = state.config.lock().unwrap_or_else(|e| e.into_inner());

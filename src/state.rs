@@ -12,10 +12,6 @@ use crate::win::sender::WinRawSender;
 pub struct Paths {
     pub profile: PathBuf,
     pub config: PathBuf,
-    /// An explicit snapshot: Save writes it, Load restores it. The working
-    /// `profile` file is rewritten on every edit (autosave), so without a
-    /// separate slot Load could only ever restore what is already on screen.
-    pub saved: PathBuf,
 }
 
 impl Paths {
@@ -27,7 +23,6 @@ impl Paths {
         Paths {
             profile: dir.join("profile.json"),
             config: dir.join("config.json"),
-            saved: dir.join("profile.saved.json"),
         }
     }
 }
@@ -57,10 +52,6 @@ impl AppState {
 
         let sink = AppSink::new(WinRawSender::new(), false);
         let engine = Engine::new(sink, config.expected_process.clone(), profile.rows.clone());
-
-        // The profile is written on the way in as well as on every edit, so the
-        // file always exists and is always the one in use.
-        let _ = profile.save(&paths.profile);
 
         AppState {
             engine: Arc::new(Mutex::new(engine)),
