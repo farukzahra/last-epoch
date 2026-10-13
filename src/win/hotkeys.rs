@@ -2,7 +2,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Emitter, Manager};
 use windows::Win32::UI::Input::KeyboardAndMouse::GetAsyncKeyState;
 
 use crate::keys::Key;
@@ -73,9 +73,54 @@ fn poll_states(app: &AppHandle) -> [u16; 2] {
     states
 }
 
+/// Records the next bindable key press while the UI is capturing.
+///
+/// This is the same `GetAsyncKeyState` path the hotkey poller uses, deliberately:
+/// a key recorded here is a key the hotkey will actually see later. It does not
+/// depend on the web view delivering a DOM event, which is where a remapping
+/// mouse driver (Logitech G HUB and friends) breaks capture.
+pub struct CaptureScanner {
+    down: [bool; 256],
+}
+
+impl Default for CaptureScanner {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl CaptureScanner {
+    pub fn new() -> Self {
+        CaptureScanner { down: [false; 256] }
+    }
+
+    /// The canonical name of the first newly-pressed bindable key, if any.
+    pub fn next(&mut self) -> Option<String> {
+        for vk in 1u16..=0xFEu16 {
+            // Escape stays the cancel key, so it can never be recorded.
+            if vk == 0x1B {
+                continue;
+            }
+            let state = unsafe { GetAsyncKeyState(vk as i32) as u16 };
+            let down = state & 0x8000 != 0;
+            let tapped = state & 0x0001 != 0;
+            let was_down = self.down[vk as usize];
+            self.down[vk as usize] = down;
+            if (down && !was_down) || tapped {
+                if let Some(name) = Key::name_for_vk(vk as i32) {
+                    return Some(name);
+                }
+            }
+        }
+        None
+    }
+}
+
 pub fn spawn_hotkey_loop(app: AppHandle, stop: Arc<AtomicBool>) -> std::thread::JoinHandle<()> {
     std::thread::spawn(move || {
         let mut detector = EdgeDetector::new();
+        let mut scanner = CaptureScanner::new();
+        let mut was_capturing = false;
         while !stop.load(Ordering::Relaxed) {
             // The detector is fed even while the UI is capturing a bind, so the
             // key used to record a bind does not look like a fresh press once
@@ -85,6 +130,24 @@ pub fn spawn_hotkey_loop(app: AppHandle, stop: Arc<AtomicBool>) -> std::thread::
                 let state = app.state::<AppState>();
                 state.capturing.load(Ordering::Relaxed)
             };
+
+            if capturing {
+                if !was_capturing {
+                    // Start with a clean baseline so a key that is already held
+                    // does not get recorded the moment capture opens.
+                    scanner = CaptureScanner::new();
+                    was_capturing = true;
+                }
+                if let Some(name) = scanner.next() {
+                    {
+                        let state = app.state::<AppState>();
+                        state.capturing.store(false, Ordering::Relaxed);
+                    }
+                    let _ = app.emit("capture-key", name);
+                }
+            } else {
+                was_capturing = false;
+            }
 
             if !capturing {
                 for hotkey in fired {

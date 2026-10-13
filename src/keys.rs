@@ -106,6 +106,21 @@ impl Key {
             Key::Mouse(MouseButton::Middle) => 0x04, // VK_MBUTTON
         }
     }
+
+    /// The canonical name for a virtual key, if it is a key we can bind.
+    ///
+    /// Scanning `KEY_CHOICES` is what keeps capture honest: a key the hotkey
+    /// poller could never watch cannot be recorded as a bind either.
+    pub fn name_for_vk(vk: i32) -> Option<String> {
+        for name in KEY_CHOICES {
+            if let Ok(key) = Key::parse(name) {
+                if key.poll_vk() == vk {
+                    return Some((*name).to_string());
+                }
+            }
+        }
+        None
+    }
 }
 
 #[cfg(test)]
@@ -181,5 +196,17 @@ mod tests {
             let slot = Key::parse(&key.name()).unwrap();
             assert_eq!(key.poll_vk(), slot.poll_vk(), "{name}");
         }
+    }
+
+    #[test]
+    fn name_for_vk_maps_back_from_a_virtual_key() {
+        assert_eq!(Key::name_for_vk(0x71).as_deref(), Some("F2"));
+        assert_eq!(Key::name_for_vk(0x04).as_deref(), Some("Mouse Middle"));
+        assert_eq!(Key::name_for_vk(0x31).as_deref(), Some("1"));
+        assert_eq!(
+            Key::name_for_vk(0x10),
+            None,
+            "a key the poller cannot watch must not be bindable"
+        );
     }
 }

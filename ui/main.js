@@ -375,6 +375,14 @@ async function boot() {
   try {
     if (tauriEvent && typeof tauriEvent.listen === "function") {
       await tauriEvent.listen("status", (event) => applyStatus(event.payload));
+      // The authoritative capture path: it reads the same keys the hotkey poller
+      // will read, so a remapping mouse driver cannot hide a press from us.
+      await tauriEvent.listen("capture-key", (event) => {
+        if (capture && event.payload) {
+          capture.detected = event.payload;
+          renderHotkeys();
+        }
+      });
     } else {
       setInterval(() => readState().catch(() => {}), 500);
     }

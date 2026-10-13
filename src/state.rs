@@ -53,6 +53,10 @@ impl AppState {
         let sink = AppSink::new(WinRawSender::new(), false);
         let engine = Engine::new(sink, config.expected_process.clone(), profile.rows.clone());
 
+        // The profile is written on the way in as well as on every edit, so the
+        // file always exists and is always the one in use.
+        let _ = profile.save(&paths.profile);
+
         AppState {
             engine: Arc::new(Mutex::new(engine)),
             probe: Arc::new(WinProbe::new(config.expected_process.clone())),

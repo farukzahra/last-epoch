@@ -94,8 +94,14 @@ fn lock_profile(state: &AppState) -> std::sync::MutexGuard<'_, Profile> {
     state.profile.lock().unwrap_or_else(|e| e.into_inner())
 }
 
+/// Hand rows to the engine and keep the file on disk in step. Every row edit
+/// goes through here, so the profile on disk is always the last one used and a
+/// restart resumes exactly where the user left off.
 fn push_rows(state: &AppState, rows: Vec<Row>) -> Vec<Row> {
     lock_engine(state).set_rows(rows.clone());
+    if let Err(error) = lock_profile(state).save(&state.paths.profile) {
+        eprintln!("le-turbo: could not save profile: {error:?}");
+    }
     rows
 }
 
