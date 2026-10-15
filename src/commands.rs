@@ -210,22 +210,13 @@ pub fn pick_profile_file(
     state: State<'_, AppState>,
     kind: String,
 ) -> Result<Option<String>, String> {
-    let current = current_profile_path(&state);
+    // Always open in the profiles folder, which is created at start, so the
+    // dialog lands somewhere predictable instead of wherever the last profile
+    // happened to be.
     let dialog = rfd::FileDialog::new()
         .add_filter("LE Turbo profile", &["json"])
-        .set_directory(
-            current
-                .parent()
-                .filter(|dir| dir.exists())
-                .map(Path::to_path_buf)
-                .unwrap_or_else(|| PathBuf::from(".")),
-        )
-        .set_file_name(
-            current
-                .file_name()
-                .and_then(|name| name.to_str())
-                .unwrap_or("profile.json"),
-        );
+        .set_directory(&state.paths.profiles_dir)
+        .set_file_name("profile.json");
     let picked = if kind == "save" {
         dialog.save_file()
     } else {

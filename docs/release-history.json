@@ -1,7 +1,14 @@
 {
-  "currentVersion": "0.4.0",
-  "updatedAt": "2026-10-15T12:40:00.000Z",
+  "currentVersion": "0.4.1",
+  "updatedAt": "2026-10-15T13:05:00.000Z",
   "entries": [
+    {
+      "version": "0.4.1",
+      "date": "2026-10-15",
+      "title": "Profiles live in a folder you can find",
+      "summary": "Profiles now live in a profiles folder beside the executable, and every profile dialog opens there, so picking one no longer depends on where the last file happened to be. A profile.json left over from the old flat layout moves into the folder on the first start, and the move never overwrites a profile you already saved.",
+      "type": "fix"
+    },
     {
       "version": "0.4.0",
       "date": "2026-10-15",
