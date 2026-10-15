@@ -55,7 +55,7 @@ From the [latest release](https://github.com/farukzahra/last-epoch/releases/late
 
 **Installer** — `LE-Turbo-setup.exe`. Installs for the current user only, so it never asks for administrator rights. It adds a Start Menu entry, and the finish page offers a **desktop shortcut** (ticked by default). Remove it later from Settings → Apps.
 
-**Portable** — `le-turbo.exe`. No install step at all; drop it in a folder and run it. Keep it somewhere writable, because the app creates `profile.json` and `config.json` beside the executable.
+**Portable** — `le-turbo.exe`. No install step at all; drop it in a folder and run it. Keep it somewhere writable, because the app creates a `profiles\` folder and a `config.json` beside the executable.
 
 Either way there is nothing else to install: it uses the WebView2 runtime that ships with Windows 10 and 11.
 
