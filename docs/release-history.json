@@ -1,7 +1,14 @@
 {
-  "currentVersion": "0.3.1",
-  "updatedAt": "2026-10-13T00:15:00.000Z",
+  "currentVersion": "0.4.0",
+  "updatedAt": "2026-10-15T12:40:00.000Z",
   "entries": [
+    {
+      "version": "0.4.0",
+      "date": "2026-10-15",
+      "title": "Keep several profiles and pick them from a list",
+      "summary": "Save as writes the profile wherever you choose and switches to it, Load opens the Windows file dialog so a profile can live in any folder, and a new Recents list brings back the last five in one click. The status panel always shows which file is in use, and opening one that does not exist now says exactly that instead of failing quietly. Profiles keep the file path they were last saved to, so a portable copy travels with its settings.",
+      "type": "feat"
+    },
     {
       "version": "0.3.1",
       "date": "2026-10-13",

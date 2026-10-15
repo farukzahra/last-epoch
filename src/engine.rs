@@ -593,7 +593,10 @@ mod tests {
         );
         e.arm();
         e.tick(&off_game(), 0);
-        assert!(e.sink().held().is_empty(), "never hold a button off the game");
+        assert!(
+            e.sink().held().is_empty(),
+            "never hold a button off the game"
+        );
     }
 
     #[test]
@@ -605,7 +608,11 @@ mod tests {
         );
         e.arm();
         e.tick(&off_game(), 0);
-        assert_eq!(e.sink().held().len(), 1, "only mouse holds need containment");
+        assert_eq!(
+            e.sink().held().len(),
+            1,
+            "only mouse holds need containment"
+        );
     }
 
     #[test]

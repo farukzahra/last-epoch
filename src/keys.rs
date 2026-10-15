@@ -22,10 +22,58 @@ pub enum ParseKeyError {
 /// The keys offered in the UI, in display order. `Key::name` resolves through
 /// this list, so every entry round-trips through `Key::parse`.
 pub const KEY_CHOICES: &[&str] = &[
-    "1", "2", "3", "4", "5", "6", "Q", "W", "E", "R", "T", "A", "S", "D", "F", "G", "Z", "X", "C",
-    "V", "B", "Space", "Tab", "Enter", "Esc", "Mouse Left", "Mouse Right", "Mouse Middle", "F1",
-    "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "F13", "F14", "F15", "F16",
-    "F17", "F18", "F19", "F20", "F21", "F22", "F23", "F24",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "Q",
+    "W",
+    "E",
+    "R",
+    "T",
+    "A",
+    "S",
+    "D",
+    "F",
+    "G",
+    "Z",
+    "X",
+    "C",
+    "V",
+    "B",
+    "Space",
+    "Tab",
+    "Enter",
+    "Esc",
+    "Mouse Left",
+    "Mouse Right",
+    "Mouse Middle",
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "F6",
+    "F7",
+    "F8",
+    "F9",
+    "F10",
+    "F11",
+    "F12",
+    "F13",
+    "F14",
+    "F15",
+    "F16",
+    "F17",
+    "F18",
+    "F19",
+    "F20",
+    "F21",
+    "F22",
+    "F23",
+    "F24",
 ];
 
 const NAMED: &[(&str, u16)] = &[
@@ -101,8 +149,8 @@ impl Key {
     pub fn poll_vk(&self) -> i32 {
         match self {
             Key::Vk(vk) => i32::from(*vk),
-            Key::Mouse(MouseButton::Left) => 0x01,   // VK_LBUTTON
-            Key::Mouse(MouseButton::Right) => 0x02,  // VK_RBUTTON
+            Key::Mouse(MouseButton::Left) => 0x01, // VK_LBUTTON
+            Key::Mouse(MouseButton::Right) => 0x02, // VK_RBUTTON
             Key::Mouse(MouseButton::Middle) => 0x04, // VK_MBUTTON
         }
     }

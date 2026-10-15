@@ -5,8 +5,7 @@ use std::time::{Duration, Instant};
 use windows::core::PWSTR;
 use windows::Win32::Foundation::{CloseHandle, BOOL, HANDLE, HWND, LPARAM, RECT};
 use windows::Win32::System::Threading::{
-    OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_WIN32,
-    PROCESS_QUERY_LIMITED_INFORMATION,
+    OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_WIN32, PROCESS_QUERY_LIMITED_INFORMATION,
 };
 use windows::Win32::UI::WindowsAndMessaging::{
     EnumWindows, GetCursorPos, GetForegroundWindow, GetWindowRect, GetWindowThreadProcessId,
@@ -89,10 +88,7 @@ pub fn find_window_by_process(name: &str) -> Option<isize> {
         found: None,
     };
     unsafe {
-        let _ = EnumWindows(
-            Some(enum_proc),
-            LPARAM(&mut ctx as *mut EnumCtx as isize),
-        );
+        let _ = EnumWindows(Some(enum_proc), LPARAM(&mut ctx as *mut EnumCtx as isize));
     }
     ctx.found.map(|h| h.0 as isize)
 }

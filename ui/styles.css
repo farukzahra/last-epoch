@@ -437,6 +437,17 @@ kbd {
   margin-left: auto;
 }
 
+.recents {
+  width: auto;
+  max-width: 150px;
+  font-size: 10px;
+  padding: 3px 4px;
+  background: var(--panel-hi);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}
+
 .version {
   color: #55635a;
   font-size: 10px;

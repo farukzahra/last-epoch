@@ -29,6 +29,7 @@ pub fn run() {
             commands::set_options,
             commands::set_hotkey,
             commands::set_capture_mode,
+            commands::pick_profile_file,
             commands::save_profile,
             commands::load_profile,
             commands::reset_profile
@@ -84,7 +85,9 @@ pub fn run() {
                                     .unwrap_or(false),
                                 None => true, // game not running: nothing to warn about
                             };
-                            state.capture_ok.store(ok, std::sync::atomic::Ordering::Relaxed);
+                            state
+                                .capture_ok
+                                .store(ok, std::sync::atomic::Ordering::Relaxed);
                         }
                         commands::build_state(state.inner())
                     };

@@ -296,11 +296,35 @@ function toggleRow(index) {
 
 /* --------------------------------------------------------------- status ----- */
 
+// Recently used profiles, newest first, so switching back is one click instead
+// of a trip through the file dialog.
+function renderRecents(paths) {
+  const select = $("recents");
+  select.replaceChildren();
+
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = S.recents;
+  select.append(placeholder);
+
+  for (const path of paths || []) {
+    const option = document.createElement("option");
+    option.value = path;
+    const parts = path.split(/[\\/]/);
+    option.textContent = parts[parts.length - 1] || path;
+    option.title = path;
+    select.append(option);
+  }
+  select.value = "";
+}
+
 function applyStatus(status) {
   const version = `v${status.version}`;
   $("version").textContent = version;
   const badge = document.querySelector(".badge");
   if (badge) badge.textContent = version;
+
+  renderRecents(status.recent_profiles);
 
   const armed = $("armed");
   armed.textContent = status.armed ? S.labelArmed : S.labelDisarmed;
@@ -315,8 +339,7 @@ function applyStatus(status) {
   warn.textContent = S.captureWarning;
   warn.classList.toggle("hidden", status.capture_ok !== false);
 
-  if (status.hotkeys && !capture) {
-    // Only rebuild when the binds actually changed: replacing the buttons every
+  if (status.hotkeys && !capture) {    // Only rebuild when the binds actually changed: replacing the buttons every
     // status tick would destroy the one under the user's cursor mid-click.
     const unchanged = HOTKEY_SLOTS.every((slot) => hotkeys[slot] === status.hotkeys[slot]);
     if (!unchanged) {
@@ -358,20 +381,41 @@ async function boot() {
   $("stop").addEventListener("click", () => invoke("disarm").catch((e) => flash(String(e))));
   $("gate").addEventListener("change", pushOptions);
 
-  $("save").addEventListener("click", async () => {
-    try {
-      flash(`${S.savedTo} ${await invoke("save_profile")}`);
-    } catch (error) {
-      flash(String(error));
-    }
-  });
+  $("save").addEventListener("click", () =>
+    queue(async () => {
+      flash(`${S.savedTo} ${await invoke("save_profile", { path: null })}`);
+    })
+  );
 
+  // Save as asks for a path first, then saves into it and starts using it.
+  $("saveas").addEventListener("click", () =>
+    queue(async () => {
+      const chosen = await invoke("pick_profile_file", { kind: "save" });
+      if (!chosen) return;
+      adopt(await invoke("save_profile", { path: chosen }));
+      flash(`${S.savedTo} ${chosen}`);
+    })
+  );
+
+  // Load asks for a path, so more than one profile is reachable.
   $("load").addEventListener("click", () =>
     queue(async () => {
-      adopt(await invoke("load_profile"));
+      const chosen = await invoke("pick_profile_file", { kind: "open" });
+      if (!chosen) return;
+      adopt(await invoke("load_profile", { path: chosen }));
       flash(S.load);
     })
   );
+
+  $("recents").addEventListener("change", (event) => {
+    const chosen = event.target.value;
+    event.target.value = "";
+    if (!chosen) return;
+    queue(async () => {
+      adopt(await invoke("load_profile", { path: chosen }));
+      flash(S.load);
+    });
+  });
 
   $("reset").addEventListener("click", () =>
     queue(async () => {

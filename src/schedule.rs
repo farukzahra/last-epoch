@@ -50,9 +50,7 @@ mod tests {
     #[test]
     fn a_never_fired_row_is_due_immediately() {
         let rows = vec![row("1", 1000, true, RowAction::Press)];
-        let clocks = vec![RowClock {
-            last_fire_ms: None,
-        }];
+        let clocks = vec![RowClock { last_fire_ms: None }];
         assert_eq!(due_rows(&rows, &clocks, 5_000), vec![0]);
     }
 
@@ -69,18 +67,14 @@ mod tests {
     #[test]
     fn disabled_rows_are_never_due() {
         let rows = vec![row("1", 1000, false, RowAction::Press)];
-        let clocks = vec![RowClock {
-            last_fire_ms: None,
-        }];
+        let clocks = vec![RowClock { last_fire_ms: None }];
         assert!(due_rows(&rows, &clocks, 100_000).is_empty());
     }
 
     #[test]
     fn hold_rows_are_never_due() {
         let rows = vec![row("Mouse Left", 1000, true, RowAction::Hold)];
-        let clocks = vec![RowClock {
-            last_fire_ms: None,
-        }];
+        let clocks = vec![RowClock { last_fire_ms: None }];
         assert!(due_rows(&rows, &clocks, 100_000).is_empty());
     }
 

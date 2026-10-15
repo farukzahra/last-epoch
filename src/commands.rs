@@ -1,3 +1,4 @@
+use std::path::{Path, PathBuf};
 use std::sync::atomic::Ordering;
 
 use serde::Serialize;
@@ -60,6 +61,7 @@ pub struct StateDto {
     pub game_focused: bool,
     pub expected_process: String,
     pub profile_path: String,
+    pub recent_profiles: Vec<String>,
     pub capture_ok: bool,
 }
 
@@ -82,7 +84,8 @@ pub fn build_state(state: &AppState) -> StateDto {
             &foreground_process_name().unwrap_or_default(),
         ),
         expected_process: config.expected_process.clone(),
-        profile_path: state.paths.profile.display().to_string(),
+        profile_path: current_profile_path(state).display().to_string(),
+        recent_profiles: config.recent_profiles.clone(),
         capture_ok: state.capture_ok.load(Ordering::Relaxed),
     }
 }
@@ -190,22 +193,92 @@ pub fn set_capture_mode(state: State<'_, AppState>, active: bool) {
     state.capturing.store(active, Ordering::Relaxed);
 }
 
+/// The profile in use. It starts beside the executable and moves whenever the
+/// user opens, or saves as, a different file.
+fn current_profile_path(state: &AppState) -> PathBuf {
+    state
+        .current_profile
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .clone()
+}
+
+/// Native file dialog, so a profile can live wherever the user keeps it.
+/// `kind` is `"open"` or `"save"`.
 #[tauri::command]
-pub fn save_profile(state: State<'_, AppState>) -> Result<String, String> {
-    let profile = lock_profile(&state);
-    profile
-        .save(&state.paths.profile)
-        .map_err(|e| format!("could not save: {e:?}"))?;
-    Ok(state.paths.profile.display().to_string())
+pub fn pick_profile_file(
+    state: State<'_, AppState>,
+    kind: String,
+) -> Result<Option<String>, String> {
+    let current = current_profile_path(&state);
+    let dialog = rfd::FileDialog::new()
+        .add_filter("LE Turbo profile", &["json"])
+        .set_directory(
+            current
+                .parent()
+                .filter(|dir| dir.exists())
+                .map(Path::to_path_buf)
+                .unwrap_or_else(|| PathBuf::from(".")),
+        )
+        .set_file_name(
+            current
+                .file_name()
+                .and_then(|name| name.to_str())
+                .unwrap_or("profile.json"),
+        );
+    let picked = if kind == "save" {
+        dialog.save_file()
+    } else {
+        dialog.pick_file()
+    };
+    Ok(picked.map(|path| path.display().to_string()))
+}
+
+/// Point the app at a profile and remember it in the recent list.
+fn use_profile(state: &AppState, path: &Path) {
+    {
+        let mut current = state
+            .current_profile
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
+        *current = path.to_path_buf();
+    }
+    if let Ok(mut config) = state.config.lock() {
+        config.remember_profile(&path.display().to_string());
+        let _ = config.save(&state.paths.config);
+    }
 }
 
 #[tauri::command]
-pub fn load_profile(state: State<'_, AppState>) -> Result<Vec<Row>, String> {
-    if !state.paths.profile.exists() {
-        return Err("nothing saved yet — press Save first".into());
+pub fn save_profile(state: State<'_, AppState>, path: Option<String>) -> Result<String, String> {
+    let target = match path.as_deref().map(str::trim) {
+        Some(given) if !given.is_empty() => PathBuf::from(given),
+        _ => current_profile_path(&state),
+    };
+    {
+        let profile = lock_profile(&state);
+        profile
+            .save(&target)
+            .map_err(|e| format!("could not save {}: {e:?}", target.display()))?;
     }
-    let loaded = Profile::load(&state.paths.profile)
-        .map_err(|e| format!("could not load: {e:?}"))?;
+    use_profile(&state, &target);
+    Ok(target.display().to_string())
+}
+
+#[tauri::command]
+pub fn load_profile(state: State<'_, AppState>, path: Option<String>) -> Result<Vec<Row>, String> {
+    let target = match path.as_deref().map(str::trim) {
+        Some(given) if !given.is_empty() => PathBuf::from(given),
+        _ => current_profile_path(&state),
+    };
+    if !target.exists() {
+        return Err(format!(
+            "no profile saved at {}. Use Save as to choose another one.",
+            target.display()
+        ));
+    }
+    let loaded = Profile::load(&target)
+        .map_err(|e| format!("could not read {}: {e:?}", target.display()))?;
     {
         let config = state.config.lock().unwrap_or_else(|e| e.into_inner());
         validate_rows(&loaded.rows, &config.hotkeys)?;
@@ -215,6 +288,7 @@ pub fn load_profile(state: State<'_, AppState>) -> Result<Vec<Row>, String> {
         let mut profile = lock_profile(&state);
         *profile = loaded;
     }
+    use_profile(&state, &target);
     Ok(push_rows(&state, rows))
 }
 

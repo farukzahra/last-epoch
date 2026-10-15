@@ -154,8 +154,7 @@ pub fn spawn_hotkey_loop(app: AppHandle, stop: Arc<AtomicBool>) -> std::thread::
                     match hotkey {
                         Hotkey::Toggle => {
                             let state = app.state::<AppState>();
-                            let mut engine =
-                                state.engine.lock().unwrap_or_else(|e| e.into_inner());
+                            let mut engine = state.engine.lock().unwrap_or_else(|e| e.into_inner());
                             if engine.is_armed() {
                                 engine.disarm();
                             } else {

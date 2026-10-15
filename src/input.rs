@@ -106,13 +106,17 @@ mod tests {
 
     impl RawSender for FakeRaw {
         fn key(&mut self, vk: u16, up: bool, scancode: bool) -> Result<(), InputError> {
-            self.calls
-                .push(format!("key:{vk:#x}:{}:{scancode}", if up { "up" } else { "down" }));
+            self.calls.push(format!(
+                "key:{vk:#x}:{}:{scancode}",
+                if up { "up" } else { "down" }
+            ));
             Ok(())
         }
         fn mouse(&mut self, button: MouseButton, up: bool) -> Result<(), InputError> {
-            self.calls
-                .push(format!("mouse:{button:?}:{}", if up { "up" } else { "down" }));
+            self.calls.push(format!(
+                "mouse:{button:?}:{}",
+                if up { "up" } else { "down" }
+            ));
             Ok(())
         }
     }

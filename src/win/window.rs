@@ -55,7 +55,11 @@ pub fn list_monitors() -> Vec<MonitorInfo> {
 }
 
 pub fn set_topmost(hwnd: isize, topmost: bool) {
-    let after = if topmost { HWND_TOPMOST } else { HWND_NOTOPMOST };
+    let after = if topmost {
+        HWND_TOPMOST
+    } else {
+        HWND_NOTOPMOST
+    };
     unsafe {
         let _ = SetWindowPos(
             HWND(hwnd as *mut _),

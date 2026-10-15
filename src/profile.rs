@@ -19,7 +19,10 @@ pub enum RowAction {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "kind")]
 pub enum Condition {
-    IconAbsent { rect: [i32; 4], reference_png: String },
+    IconAbsent {
+        rect: [i32; 4],
+        reference_png: String,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -109,7 +112,14 @@ pub struct AppConfig {
     pub expected_process: String,
     pub open_on_other_monitor: bool,
     pub hotkeys: Hotkeys,
+    /// Most recently used profile paths, newest first, so the UI can offer them
+    /// instead of making the user browse the filesystem every time.
+    /// A missing field in an older config falls back to the default (empty).
+    pub recent_profiles: Vec<String>,
 }
+
+/// How many paths the recent list keeps.
+pub const MAX_RECENT_PROFILES: usize = 5;
 
 impl Default for AppConfig {
     fn default() -> Self {
@@ -117,7 +127,23 @@ impl Default for AppConfig {
             expected_process: "Last Epoch.exe".into(),
             open_on_other_monitor: true,
             hotkeys: Hotkeys::default(),
+            recent_profiles: Vec::new(),
         }
+    }
+}
+
+impl AppConfig {
+    /// Remembers a profile path: newest first, no duplicates, capped, and blank
+    /// paths ignored so a cancelled dialog cannot add an empty entry.
+    pub fn remember_profile(&mut self, path: &str) {
+        let path = path.trim();
+        if path.is_empty() {
+            return;
+        }
+        self.recent_profiles
+            .retain(|known| !known.eq_ignore_ascii_case(path));
+        self.recent_profiles.insert(0, path.to_string());
+        self.recent_profiles.truncate(MAX_RECENT_PROFILES);
     }
 }
 
@@ -201,10 +227,7 @@ impl AppConfig {
         let hotkeys = value.get("hotkeys");
         let had_toggle = hotkeys.and_then(|h| h.get("toggle")).is_some();
         if !had_toggle {
-            if let Some(legacy_arm) = hotkeys
-                .and_then(|h| h.get("arm"))
-                .and_then(|v| v.as_str())
-            {
+            if let Some(legacy_arm) = hotkeys.and_then(|h| h.get("arm")).and_then(|v| v.as_str()) {
                 config.hotkeys.toggle = legacy_arm.to_string();
             }
         }
@@ -355,7 +378,10 @@ mod tests {
         let mut hotkeys = Hotkeys::default();
         assert_eq!(hotkeys.get("toggle").map(String::as_str), Some("F2"));
         assert!(hotkeys.set("toggle", "Mouse Middle".into()));
-        assert_eq!(hotkeys.get("toggle").map(String::as_str), Some("Mouse Middle"));
+        assert_eq!(
+            hotkeys.get("toggle").map(String::as_str),
+            Some("Mouse Middle")
+        );
         assert!(
             !hotkeys.set("nope", "F4".into()),
             "an unknown slot must not be written"
@@ -395,5 +421,38 @@ mod tests {
             "the old arm key must carry over to the new toggle slot"
         );
         assert_eq!(loaded.hotkeys.quit, "F9");
+    }
+
+    #[test]
+    fn recent_profiles_keep_the_newest_first_without_duplicates() {
+        let mut cfg = AppConfig::default_config();
+        cfg.remember_profile(r"C:\a.json");
+        cfg.remember_profile(r"C:\b.json");
+        cfg.remember_profile(r"C:\a.json");
+        assert_eq!(cfg.recent_profiles, vec![r"C:\a.json", r"C:\b.json"]);
+    }
+
+    #[test]
+    fn recent_profiles_are_capped_and_blank_paths_are_ignored() {
+        let mut cfg = AppConfig::default_config();
+        for i in 0..(MAX_RECENT_PROFILES + 2) {
+            cfg.remember_profile(&format!(r"C:\p{i}.json"));
+        }
+        cfg.remember_profile("   ");
+        assert_eq!(cfg.recent_profiles.len(), MAX_RECENT_PROFILES);
+        assert_eq!(cfg.recent_profiles[0], r"C:\p6.json");
+    }
+
+    #[test]
+    fn a_config_from_before_the_recent_list_still_loads() {
+        let path = temp_path("cfg_no_recents");
+        std::fs::write(
+            &path,
+            r#"{"expected_process":"Last Epoch.exe","open_on_other_monitor":true,
+                "hotkeys":{"toggle":"F2","quit":"F9"}}"#,
+        )
+        .unwrap();
+        let loaded = AppConfig::load_or_default(&path);
+        assert!(loaded.recent_profiles.is_empty());
     }
 }

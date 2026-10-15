@@ -12,7 +12,9 @@ export const S = {
   actionHold: "Hold",
 
   save: "Save",
-  load: "Load",
+  saveAs: "Save as",
+  load: "Load…",
+  recents: "Recents",
   reset: "Reset",
 
   start: "START",

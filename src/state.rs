@@ -34,6 +34,9 @@ pub struct AppState {
     pub profile: Mutex<Profile>,
     pub paths: Paths,
     pub stop: Arc<AtomicBool>,
+    /// The profile in use. Starts at `paths.profile`, and moves when the user
+    /// opens or saves as a different file.
+    pub current_profile: Mutex<PathBuf>,
     /// Latest capture sanity result: false means we found the game but its
     /// frame came back black, which is what exclusive fullscreen looks like.
     pub capture_ok: AtomicBool,
@@ -46,6 +49,7 @@ impl AppState {
         let paths = Paths::next_to_exe();
         let config = AppConfig::load_or_default(&paths.config);
         let profile = Profile::load(&paths.profile).unwrap_or_else(|_| Profile::default_profile());
+        let current_profile = paths.profile.clone();
 
         // Write the config out so the user can see and edit the expected process.
         let _ = config.save(&paths.config);
@@ -60,6 +64,7 @@ impl AppState {
             profile: Mutex::new(profile),
             paths,
             stop: Arc::new(AtomicBool::new(false)),
+            current_profile: Mutex::new(current_profile),
             capture_ok: AtomicBool::new(true),
             capturing: AtomicBool::new(false),
         }
