@@ -1,7 +1,14 @@
 {
-  "currentVersion": "0.4.1",
-  "updatedAt": "2026-10-15T13:05:00.000Z",
+  "currentVersion": "0.4.2",
+  "updatedAt": "2026-10-16T12:20:00.000Z",
   "entries": [
+    {
+      "version": "0.4.2",
+      "date": "2026-10-16",
+      "title": "The window no longer forces itself above everything",
+      "summary": "Removed the always-on-top behaviour. The window is parked on the monitor you chose and raised once when it opens, then it behaves like any other window: it goes behind whatever you are doing instead of floating over it. If you play the game fullscreen, alt-tab or windowed mode is how you reach it now.",
+      "type": "fix"
+    },
     {
       "version": "0.4.1",
       "date": "2026-10-15",

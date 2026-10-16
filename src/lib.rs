@@ -52,7 +52,7 @@ pub fn run() {
                     .and_then(|p| p.file_name().map(|f| f.to_string_lossy().to_string()))
                     .unwrap_or_default();
 
-                let mut hwnd: Option<isize> = None;
+                let mut placed = false;
                 let mut tick: u64 = 0;
 
                 loop {
@@ -60,7 +60,9 @@ pub fn run() {
                     tick += 1;
 
                     // The window exists by now, but not necessarily at setup time.
-                    if hwnd.is_none() {
+                    // It is parked once and then left in the normal z-order: nothing
+                    // here keeps it above other windows any more.
+                    if !placed {
                         if let Some(found) = win::probe::find_window_by_process(&own_process) {
                             win::window::enable_dark_titlebar(found);
                             let open_other = {
@@ -69,11 +71,8 @@ pub fn run() {
                                 cfg.open_on_other_monitor
                             };
                             win::window::place_on_monitor(found, open_other);
-                            hwnd = Some(found);
+                            placed = true;
                         }
-                    } else if tick % 4 == 0 {
-                        // A fullscreen game can steal the top spot; re-assert it.
-                        win::window::set_topmost(hwnd.unwrap(), true);
                     }
 
                     let dto = {

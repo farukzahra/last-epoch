@@ -5,9 +5,7 @@ use windows::Win32::Graphics::Dwm::{
 use windows::Win32::Graphics::Gdi::{
     EnumDisplayMonitors, GetMonitorInfoW, HDC, HMONITOR, MONITORINFO,
 };
-use windows::Win32::UI::WindowsAndMessaging::{
-    SetWindowPos, HWND_NOTOPMOST, HWND_TOPMOST, SWP_NOMOVE, SWP_NOSIZE, SWP_SHOWWINDOW,
-};
+use windows::Win32::UI::WindowsAndMessaging::{SetWindowPos, HWND_TOP, SWP_NOSIZE, SWP_SHOWWINDOW};
 
 pub struct MonitorInfo {
     pub primary: bool,
@@ -54,27 +52,9 @@ pub fn list_monitors() -> Vec<MonitorInfo> {
     found
 }
 
-pub fn set_topmost(hwnd: isize, topmost: bool) {
-    let after = if topmost {
-        HWND_TOPMOST
-    } else {
-        HWND_NOTOPMOST
-    };
-    unsafe {
-        let _ = SetWindowPos(
-            HWND(hwnd as *mut _),
-            after,
-            0,
-            0,
-            0,
-            0,
-            SWP_NOMOVE | SWP_NOSIZE,
-        );
-    }
-}
-
-/// Park the window on the non-primary monitor when asked and one exists, then
-/// force it above the fullscreen game.
+/// Park the window on the non-primary monitor when asked and one exists. The
+/// window is raised once, not made topmost: it behaves like any other window
+/// afterwards and can go behind whatever the user is doing.
 pub fn place_on_monitor(hwnd: isize, other_monitor: bool) -> Option<(i32, i32)> {
     let monitors = list_monitors();
     if monitors.is_empty() {
@@ -90,7 +70,7 @@ pub fn place_on_monitor(hwnd: isize, other_monitor: bool) -> Option<(i32, i32)> 
     unsafe {
         let _ = SetWindowPos(
             HWND(hwnd as *mut _),
-            HWND_TOPMOST,
+            HWND_TOP,
             at.0,
             at.1,
             0,
